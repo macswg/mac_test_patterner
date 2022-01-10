@@ -122,9 +122,10 @@ logging.debug(
     'color value is ' + str(bgColor) + '\n'
 )
 
-# Function to add a 1 pixel border
-# likely need to call open image if sending an image to the function that
-# is not already open
+''' Function to add a 1 pixel border
+ likely need to call open image if sending an image to the function that
+ is not already open
+'''
 def makeBorder(image):
     # border color
     borderColor = ImageColor.getcolor('white', 'RGBA')
@@ -267,7 +268,6 @@ if half_tile_bool == True:
 logging.debug('For loop A copying led panels to wall complete')
 logging.debug('tileResWidth 141 = ' + str(tileResWidth))
 logging.debug('tileResHeight 142 = ' + str(tileResHeight))
-
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
@@ -285,11 +285,9 @@ arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), fontCal)
 
 ''' these variables are defined outside the loops
     so they can be manipulated
-    List (needs to be converted to string for use)'''
+    List (needs to be converted to string for use)
+'''
 indexNums = [1, 1]
-
-
-# logging.debug('halftile_indexNums = ' + str(halftile_indexNums))
 
 # This function converts list to string for use in draw.text lines
 def iNc(i):
@@ -316,6 +314,9 @@ if half_tile_bool == True:
 while True:
     logging.debug('Start while true')
     loop_counter1 = 0
+
+    # original while statement
+    # while indexNums[0] <= wallPanelWidth + 1:
 
     while indexNums[0] <= wallPanelWidth:
 
@@ -344,23 +345,6 @@ while True:
             fill='gray',
             font=arialFont,
         )
-
-        # # This if statements draws the half-tile numbers
-        # if half_tile_bool == True:
-        #     logging.debug('Begin drawing half-tile text ')
-        #     # draws text on the half panel
-        #     draw.text(
-        #         (
-        #             adjusted_x_coord_for_text_halfpanel,
-        #             adjusted_y_coord_for_text_halfpanel,
-        #         ),
-        #         iNc(indexNums),
-        #         fill='gray',
-        #         font=arialFont,
-        #     )
-        #     logging.debug('END IF statement drawing half-tile text ' + str(indexNums))
-
-            # logging.debug('halftile_indexNums = ' + str(halftile_indexNums))
 
         # adds to index number
         indexNums[1] += 1
@@ -394,31 +378,25 @@ while True:
             logging.debug('adjusted_y_coord_for_text = ' + str(adjusted_y_coord_for_text) + '\n')
 
 
-
-
-
         # original if statement
         if indexNums[1] == wallPanelHeight + 1:
-
             logging.debug('Start if indexNums A. ' + str(indexNums))
 
             # these are necessary to prevent infinite loop
             indexNums[0] += 1
             indexNums[1] = 1
 
-
-            # adjusted_x_coord_for_text = CENT_X_CORD_FOR_TEXT
-            # adjusted_y_coord_for_text += tileResHeight
+            adjusted_x_coord_for_text = CENT_X_CORD_FOR_TEXT
+            adjusted_y_coord_for_text += tileResHeight
 
             # calculates the width and height of text to be drawn
-            # w, h = draw.textsize(iNc(indexNums), font=arialFont)
-            # logging.debug(
-            #     'draw.textsize w value = ' + str(w) + '-- h value = ' + str(h)
-            #     + str(indexNums)
-            # )
+            w, h = draw.textsize(iNc(indexNums), font=arialFont)
+            logging.debug(
+                'draw.textsize w value = ' + str(w) + '-- h value = ' + str(h)
+            )
+
     break
 
-# TODO: be able to handle half panels
 
 # TODO: add information overlays (resolution, what else)
 
