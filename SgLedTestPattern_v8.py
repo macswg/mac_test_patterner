@@ -7,7 +7,9 @@
 import logging
 
 logging.basicConfig(
-    level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s'
+    filename='LedTestPatternLog.txt',
+    level=logging.DEBUG,
+    format=' %(asctime)s - %(levelname)s - %(message)s'
 )
 
 # disables logging
@@ -17,7 +19,7 @@ logging.basicConfig(
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
 
-logging.debug('Start of program')
+logging.debug(' Start of program')
 
 
 # Function to validate resolution input
@@ -405,7 +407,13 @@ while True:
 # TODO: add information to grid bg
 
 
-logging.debug('wallPanelWidth value is: ' + str(wallPanelWidth))
+logging.debug('wallPanelWidth value is: '
+    + str(wallPanelWidth)
+    + '\n END OF PROGRAM \n \n \n'
+)
+
+# test edit of festival pattern option git rep branch
+# main branch should not have this edit
 
 # saves image file
 wallIm.save('wallTestGrid_1.png')
