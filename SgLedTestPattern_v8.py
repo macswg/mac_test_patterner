@@ -15,10 +15,11 @@ logging.basicConfig(
 # disables logging
 # logging.disable(logging.CRITICAL)
 
-# Import pillow image module
+# Import pillow image module and other stuff
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
 import sys
+
 
 logging.debug(' Start of program')
 
@@ -155,6 +156,48 @@ if fest_pattern == True:
 
     # create new image
     festIm = Image.new('RGBA', (fest_wall_width, fest_wall_height), fest_bgColor)
+
+
+    # Draw and scale an ellipse to remove anti-aliasing
+    scale_factor = 4
+    scale_w, scale_h = (
+        (fest_wall_width * scale_factor),
+        (fest_wall_height * scale_factor),
+    )
+
+    # PIL code: Create new image for circle
+    festCircle = Image.new(
+        'RGBA', (scale_w, scale_h), fest_bgColor
+    )
+
+
+    # Draw perfect circle
+    drawFestPatterns = ImageDraw.Draw(festCircle)
+    circRadius = min(scale_w, scale_h)
+
+  # create variables to draw a centered circle
+    def circleCenterPoints(i=circRadius, j=scale_w, k=scale_h):
+        tl_x = (j / 2) - (i / 2)
+        tl_y = (k / 2) - (i / 2)
+        br_x = (j / 2) + (i / 2)
+        br_y = (k / 2) + (i / 2)
+        return tl_x, tl_y, br_x, br_y
+
+    drawFestPatterns.ellipse(
+        (circleCenterPoints()),
+        fill=None, outline=(255, 255, 255), width=6
+    )
+
+    #draw x lines
+    drawFestPatterns.line((0, 0, scale_w, scale_h), fill=None, width=6, joint=None)
+    drawFestPatterns.line((0, scale_h, scale_w, 0), fill=None, width=6, joint=None)
+
+    # scales circle image to festival image size
+    original_size = (fest_wall_width, fest_wall_height)
+    festCircle = festCircle.resize(original_size, resample=1)
+
+    # pastes scaled circle onto image
+    festIm.paste(festCircle, (0, 0))
 
     # Call make border function to add the border
     makeBorder(festIm)
