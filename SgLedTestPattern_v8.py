@@ -67,6 +67,9 @@ def half_tile_check(i):
             elif int(j[1]) >= 6:
                 print(error1)
                 continue
+        except ValueError:
+            print('Enter a whole number or a float value (i.e. x or x.5)')
+            continue
         except IndexError:
             x = False
             i = TILECOUNT
