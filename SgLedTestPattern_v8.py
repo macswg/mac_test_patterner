@@ -492,8 +492,9 @@ while True:
 makeBorder(wallIm)
 
 # TODO: add information overlays (resolution, what else)
+
 # draw image resolution text
-statsFontSize = 24
+statsFontSize = 28
 arialFontStats = (
     ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
 )
@@ -501,16 +502,22 @@ arialFontStats = (
 wallsize = wallIm.size
 wallsizeX, wallsizeY = wallIm.size
 
-# need size of text drawn to center
+# calculates the width and height of text to be drawn
+def getSizeOfText(i):
+    w, h = draw.textsize(i, font=arialFontStats)
+    return w, h
 
 # This function converts list to string for use in draw.text lines
 def wLLsz(i):
-    i = ', '.join(str(e) for e in wallsize)
+    i = ' x '.join(str(e) for e in wallsize)
     return i
+
+
+res_text_w, res_text_h = getSizeOfText(wLLsz(wallsize))
 
 # draws stats text
 draw.text(
-    ((wallsizeX / 2) - (5), 0),
+    ((wallsizeX / 2) - (res_text_w / 2), (wallsizeY / 2) - (res_text_h / 2)),
     wLLsz(wallsize),
     fill='white',
     font=arialFontStats,
