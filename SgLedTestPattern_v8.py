@@ -110,27 +110,30 @@ def even_is_true(i):
 
 ''' Function to add a 1 pixel border
  likely need to call open image if sending an image to the function that
- is not already open
+ is not already open.
+ Border color defaults to white, but can add color argument.
 '''
-def makeBorder(image):
+whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
+altBorderColor = ImageColor.getcolor('gray', 'RGBA')
+def makeBorder(image, color=whiteBorderColor):
     # border color
-    borderColor = ImageColor.getcolor('white', 'RGBA')
+    #borderColor = ImageColor.getcolor('white', 'RGBA')
     try:
         width, height = image.size
         # top and bottom borders
         logging.debug('Start drawing top and bottom borders')
         for x in range(width):
             for y in range(1):
-                image.putpixel((x, y), borderColor)
+                image.putpixel((x, y), color)
             for y in range(height - 1, height):
-                image.putpixel((x, y), borderColor)
+                image.putpixel((x, y), color)
         # left and right borders
         logging.debug('Start drawing left and right borders')
         for y in range(height):
             for x in range(1):
-                image.putpixel((x, y), borderColor)
+                image.putpixel((x, y), color)
             for x in range(width - 1, width):
-                image.putpixel((x, y), borderColor)
+                image.putpixel((x, y), color)
     except ValueError:
         print('There is a problem with the image called to the function')
 
@@ -240,7 +243,7 @@ logging.debug('Start of Create New Image ')
 ledIm = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor)
 
 # Call make border function to add the border
-makeBorder(ledIm)
+makeBorder(ledIm, altBorderColor)
 
 # Create new image of LED panels color 2
 logging.debug('lightens color by 50%')
@@ -255,7 +258,7 @@ ledIm2 = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor2)
 logging.debug('size of ledIm2 is: ' + str(ledIm2.size))
 
 # Call make border function to add the border to LED color panel 2
-makeBorder(ledIm2)
+makeBorder(ledIm2, altBorderColor)
 
 
 # Ask for user input of wall dimensions
@@ -272,8 +275,8 @@ if half_tile_bool == True:
     logging.debug('half tile is TRUE')
     ledIm3_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor)
     ledIm4_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor2)
-    makeBorder(ledIm3_half)
-    makeBorder(ledIm4_half)
+    makeBorder(ledIm3_half, altBorderColor)
+    makeBorder(ledIm4_half, altBorderColor)
 else:
     logging.debug('half tile is false')
 
@@ -407,6 +410,7 @@ while True:
     while indexNums[0] <= wallPanelWidth:
 
         loop_counter1 += 1
+        
         logging.debug(
             'While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums)
         )
@@ -484,7 +488,34 @@ while True:
     break
 
 
+# draw white border around entire test pattern
+makeBorder(wallIm)
+
 # TODO: add information overlays (resolution, what else)
+# draw image resolution text
+statsFontSize = 24
+arialFontStats = (
+    ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
+)
+
+wallsize = wallIm.size
+wallsizeX, wallsizeY = wallIm.size
+
+# need size of text drawn to center
+
+# This function converts list to string for use in draw.text lines
+def wLLsz(i):
+    i = ', '.join(str(e) for e in wallsize)
+    return i
+
+# draws stats text
+draw.text(
+    ((wallsizeX / 2) - (5), 0),
+    wLLsz(wallsize),
+    fill='white',
+    font=arialFontStats,
+)
+
 
 # TODO: combine multiple grids onto the same image
 
