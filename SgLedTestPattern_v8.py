@@ -12,7 +12,7 @@ logging.basicConfig(
     format=' %(asctime)s - %(levelname)s - %(message)s'
 )
 
-# disables logging
+# disables logging when uncommented
 # logging.disable(logging.CRITICAL)
 
 # Import pillow image module and other stuff
@@ -49,7 +49,6 @@ def int_input_validation(prompt):
     Returns False if there is not a row of half panels.
     Also returns tile height number
 '''
-
 
 def half_tile_check(i):
     error1 = '\nThat is not a valid panel height\nEither use a whole number or add .5 for half panel\n'
@@ -108,11 +107,30 @@ def even_is_true(i):
     return x
 
 
+
+# This defines a default value for arialFont that is updated later
+fontsFolder = 'FONT_FOLDER'
+defaultFontSize = 2
+arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), defaultFontSize)
+
+def getSizeOfText(i, font=arialFont):
+    w, h = draw.textsize(i, font)
+    return w, h
+
+
+# This function converts list to string for use in draw.text lines
+def wLLsz(i):
+    j = i
+    i = ' x '.join(str(e) for e in j)
+    return i
+
+
 ''' Function to add a 1 pixel border
  likely need to call open image if sending an image to the function that
  is not already open.
  Border color defaults to white, but can add color argument.
 '''
+
 whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
 altBorderColor = ImageColor.getcolor('gray', 'RGBA')
 def makeBorder(image, color=whiteBorderColor):
@@ -163,6 +181,7 @@ if fest_pattern == True:
     # create new image
     festIm = Image.new('RGBA', (fest_wall_width, fest_wall_height), fest_bgColor)
 
+    fest_wallsize = festIm.size
 
     # Draw and scale an ellipse to remove anti-aliasing
     scale_factor = 4
@@ -171,17 +190,17 @@ if fest_pattern == True:
         (fest_wall_height * scale_factor),
     )
 
-    # PIL code: Create new image for circle
-    festCircle = Image.new(
+    # PIL code: Create new image for circle and lines
+    festOverlaysIm = Image.new(
         'RGBA', (scale_w, scale_h), fest_bgColor
     )
 
 
     # Draw perfect circle
-    drawFestPatterns = ImageDraw.Draw(festCircle)
+    drawFestPatterns = ImageDraw.Draw(festOverlaysIm)
     circRadius = min(scale_w, scale_h)
 
-  # create variables to draw a centered circle
+    # create variables to draw a centered circle
     def circleCenterPoints(i=circRadius, j=scale_w, k=scale_h):
         tl_x = (j / 2) - (i / 2)
         tl_y = (k / 2) - (i / 2)
@@ -194,16 +213,37 @@ if fest_pattern == True:
         fill=None, outline=(255, 255, 255), width=6
     )
 
-    #draw x lines
+    # draw x lines
     drawFestPatterns.line((0, 0, scale_w, scale_h), fill=None, width=6, joint=None)
     drawFestPatterns.line((0, scale_h, scale_w, 0), fill=None, width=6, joint=None)
 
-    # scales circle image to festival image size
+
+
+
+    # THIS NOT WORKING
+
+    # # updates variable so that 'getSizeOfText' function works 
+    # draw = drawFestPatterns
+
+    # # TODO: draw resolution overlay text -- putting here should scale it
+    # fest_res_text_w, fest_res_text_h = getSizeOfText(wLLsz(fest_wallsize), drawFestPatterns)
+    
+    # draw.text(
+    #     ((fest_wallsizeX / 2) - (res_text_w / 2), (wallsizeY / 2) - (res_text_h / 2)),
+    #     wLLsz(wallsize),
+    #     fill='white',
+    #     font=arialFontStats,
+    # )
+
+
+
+
+    # scales festival overlays image to festival image size
     original_size = (fest_wall_width, fest_wall_height)
-    festCircle = festCircle.resize(original_size, resample=1)
+    festOverlaysIm = festOverlaysIm.resize(original_size, resample=1)
 
     # pastes scaled circle onto image
-    festIm.paste(festCircle, (0, 0))
+    festIm.paste(festOverlaysIm, (0, 0))
 
     # Call make border function to add the border
     makeBorder(festIm)
@@ -369,7 +409,6 @@ logging.debug('W = ' + str(W) + 'H = ' + str(H) + 'half_H = ' + str(half_H))
 
 # calculate appropriate font size for panel resolution
 fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
-fontsFolder = 'FONT_FOLDER'
 arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), fontCal)
 
 ''' these variables are defined outside the loops
@@ -384,7 +423,15 @@ def iNc(i):
     return i
 
 
-# calculates the width and height of text to be drawn
+''' calculates the width and height of text to be drawn
+    function below added later -- can eventually replace
+    '# original line that calculates' line but rest of code 
+    will need to be updated.
+'''
+
+
+
+# original line that calculates the width and height of text to be drawn
 w, h = draw.textsize(iNc(indexNums), font=arialFont)
 
 # centering text math constants
@@ -491,9 +538,10 @@ while True:
 # draw white border around entire test pattern
 makeBorder(wallIm)
 
+
 # TODO: add information overlays (resolution, what else)
 
-# draw image resolution text
+# draw image resolution text overlay
 statsFontSize = 28
 arialFontStats = (
     ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
@@ -502,18 +550,7 @@ arialFontStats = (
 wallsize = wallIm.size
 wallsizeX, wallsizeY = wallIm.size
 
-# calculates the width and height of text to be drawn
-def getSizeOfText(i):
-    w, h = draw.textsize(i, font=arialFontStats)
-    return w, h
-
-# This function converts list to string for use in draw.text lines
-def wLLsz(i):
-    i = ' x '.join(str(e) for e in wallsize)
-    return i
-
-
-res_text_w, res_text_h = getSizeOfText(wLLsz(wallsize))
+res_text_w, res_text_h = getSizeOfText(wLLsz(wallsize), arialFontStats)
 
 # draws stats text
 draw.text(
