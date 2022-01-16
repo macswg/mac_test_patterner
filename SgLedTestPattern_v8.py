@@ -20,13 +20,10 @@ from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
 import sys
 
-
 logging.debug(' Start of program')
-
 
 # Function to validate resolution input
 logging.debug('Start of resolution Validation function definition')
-
 
 def int_input_validation(prompt):
     while True:
@@ -79,7 +76,6 @@ def half_tile_check(i):
 # Function to validate the background color
 logging.debug('Start of background color Validation definition')
 
-
 def color_input_validation():
     while True:
         try:
@@ -107,14 +103,19 @@ def even_is_true(i):
     return x
 
 
-
-# This defines a default value for arialFont that is updated later
+# This defines a variables that will be updated later
 fontsFolder = 'FONT_FOLDER'
-defaultFontSize = 2
-arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), defaultFontSize)
 
-def getSizeOfText(i, font=arialFont):
-    w, h = draw.textsize(i, font)
+# I'm making the fontCal variable a function:
+# this line calculates the font size needed
+# fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
+def fontCalFunc(i=72, j=72):
+    x = int(min(i, j) / 2 * 0.6)
+    return x
+
+
+def getSizeOfText(text, font):
+    w, h = draw.textsize(text, font)
     return w, h
 
 
@@ -123,6 +124,13 @@ def wLLsz(i):
     j = i
     i = ' x '.join(str(e) for e in j)
     return i
+
+
+# W H = larger raster / w h = smaller raster to center
+def CalcCenter(W, H, w, h):
+    x = int(W / 2) - int(w / 2)
+    y = int(H / 2) - int(h / 2)
+    return x, y
 
 
 ''' Function to add a 1 pixel border
@@ -159,7 +167,7 @@ def makeBorder(image, color=whiteBorderColor):
 # Festival input pattern
 def fest_pattern_bool(i=False):
     i = input('''Do you want to create a Festival Test Pattern with no LED outlines?
-Leave blank for LED test pattern -- enter y for festival pattern: '''
+    Leave blank for LED test pattern -- enter y for festival pattern: '''
     )
     if i == 'y':
         i = True
@@ -169,6 +177,9 @@ Leave blank for LED test pattern -- enter y for festival pattern: '''
 fest_pattern = fest_pattern_bool()
 
 
+
+# FESTIVAL TEST PATTERN -- IF SECTION
+
 if fest_pattern == True:
     fest_wall_width = int_input_validation(
         '\n' + 'Enter the horizontal resolution of the test pattern: '
@@ -177,6 +188,8 @@ if fest_pattern == True:
         '\n' + 'Enter the vertical resolution of the test pattern: '
     )
     fest_bgColor = color_input_validation()
+
+    overlay_color = 127, 127, 127
 
     # create new image
     festIm = Image.new('RGBA', (fest_wall_width, fest_wall_height), fest_bgColor)
@@ -199,9 +212,10 @@ if fest_pattern == True:
     # Draw perfect circle
     drawFestPatterns = ImageDraw.Draw(festOverlaysIm)
     circRadius = min(scale_w, scale_h)
+    circRadius_w_Pad = circRadius - (circRadius * .05)
 
     # create variables to draw a centered circle
-    def circleCenterPoints(i=circRadius, j=scale_w, k=scale_h):
+    def circleCenterPoints(i=circRadius_w_Pad, j=scale_w, k=scale_h):
         tl_x = (j / 2) - (i / 2)
         tl_y = (k / 2) - (i / 2)
         br_x = (j / 2) + (i / 2)
@@ -210,33 +224,65 @@ if fest_pattern == True:
 
     drawFestPatterns.ellipse(
         (circleCenterPoints()),
-        fill=None, outline=(255, 255, 255), width=6
+        fill=None, outline=(overlay_color), width=6
     )
 
     # draw x lines
-    drawFestPatterns.line((0, 0, scale_w, scale_h), fill=None, width=6, joint=None)
-    drawFestPatterns.line((0, scale_h, scale_w, 0), fill=None, width=6, joint=None)
+    drawFestPatterns.line((0, 0, scale_w, scale_h), fill='gray', width=6, joint=None)
+    drawFestPatterns.line((0, scale_h, scale_w, 0), fill='gray', width=6, joint=None)
 
 
+    # TEXT OVERLAY on FEST PATTERN -- These lines draw resolution and label of festival test pattern.
+    draw = ImageDraw.Draw(festOverlaysIm)
+    draw.fontmode = 'L'
+    fest_res_text = wLLsz(fest_wallsize)
+
+    # Asks user to enter a label
+    fest_wall_label_text = input('What label do you want?')
+
+    #updates arialFont size
+    arialFont = ImageFont.truetype(
+        os.path.join(fontsFolder,
+        'arial.ttf'),
+        fontCalFunc(scale_w / 4 , scale_h / 4)
+    )
+
+    # define vars for function that draws resolution text overlay
+    W, H,= scale_w, scale_h 
+    w, h = getSizeOfText(fest_res_text, arialFont)
+    text_size = CalcCenter(W, H, w, h)
+    text_x, text_y = text_size
+    text_y = text_y + h
+    text_size = text_x, text_y
+
+    # draws fest res text
+    draw.text(text_size,
+        fest_res_text,
+        fill='white',
+        font=arialFont,
+    )
 
 
-    # THIS NOT WORKING
+    # updates arialFont size for title overlay text
+    arialTitleFont = ImageFont.truetype(
+        os.path.join(fontsFolder,
+        'arial.ttf'),
+        fontCalFunc(scale_w / 4.5 , scale_h / 4.5)
+    )
 
-    # # updates variable so that 'getSizeOfText' function works 
-    # draw = drawFestPatterns
-
-    # # TODO: draw resolution overlay text -- putting here should scale it
-    # fest_res_text_w, fest_res_text_h = getSizeOfText(wLLsz(fest_wallsize), drawFestPatterns)
+    # updates variables to adjust position of fest title screen text
+    w, h = getSizeOfText(fest_wall_label_text, arialTitleFont)
+    text_size = CalcCenter(W, H, w, h)
+    text_x, text_y = text_size
+    text_y = text_y - h # moves text up
+    text_size = text_x, text_y
     
-    # draw.text(
-    #     ((fest_wallsizeX / 2) - (res_text_w / 2), (wallsizeY / 2) - (res_text_h / 2)),
-    #     wLLsz(wallsize),
-    #     fill='white',
-    #     font=arialFontStats,
-    # )
-
-
-
+    # draws fest wall label text
+    draw.text(text_size,
+        fest_wall_label_text,
+        fill='white',
+        font=arialTitleFont,
+    )
 
     # scales festival overlays image to festival image size
     original_size = (fest_wall_width, fest_wall_height)
@@ -403,6 +449,7 @@ logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
 # creating variables to loop later - also centering the text
 draw = ImageDraw.Draw(wallIm)
+draw.fontmode = 'L'
 W, H, half_H = (tileResWidth, tileResHeight, (tileResHeight / 2))
 
 logging.debug('W = ' + str(W) + 'H = ' + str(H) + 'half_H = ' + str(half_H))
@@ -482,6 +529,7 @@ while True:
             fill='gray',
             font=arialFont,
         )
+
 
         # adds to index number
         indexNums[1] += 1
@@ -565,8 +613,6 @@ draw.text(
 
 # TODO: add information to grid bg
 
-# test edit of festival pattern option git rep branch
-# main branch should not have this edit
 
 # saves image file
 wallIm.save('wallTestPattern_1.png')
