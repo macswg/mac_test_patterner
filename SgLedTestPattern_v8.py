@@ -589,23 +589,58 @@ makeBorder(wallIm)
 
 # TODO: add information overlays (resolution, what else)
 
-# draw image resolution text overlay
-statsFontSize = 28
-arialFontStats = (
-    ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
-)
+
+
+# INFORMATION OVERLAYS ON LED TEST PATTERN SECTION -- draws resolution and title overlays
 
 wallsize = wallIm.size
 wallsizeX, wallsizeY = wallIm.size
 
-res_text_w, res_text_h = getSizeOfText(wLLsz(wallsize), arialFontStats)
+statsFontSize = fontCalFunc(wallsizeX / 4, wallsizeY / 4)
+arialFontStats = (
+    ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
+)
+
+
+# asks user for wall label
+LED_wall_label_text = input('What label do you want?')
+
+# updates variables for image resolution text overlays
+W, H,= wallsizeX, wallsizeY 
+w, h = getSizeOfText(wLLsz(wallsize), arialFontStats)
+text_size = CalcCenter(W, H, w, h)
+text_x, text_y = text_size
+text_y = text_y + (h / 2)
+text_size = text_x, text_y
+
+# updates arialFont size for title overlay text
+arialTitleFont_LED = ImageFont.truetype(
+    os.path.join(fontsFolder,
+    'arial.ttf'),
+    fontCalFunc(wallsizeX / 4.5 , wallsizeY / 4.5)
+)
 
 # draws stats text
 draw.text(
-    ((wallsizeX / 2) - (res_text_w / 2), (wallsizeY / 2) - (res_text_h / 2)),
+    text_size,
     wLLsz(wallsize),
     fill='white',
     font=arialFontStats,
+)
+
+
+# updates variables for title overlays
+w, h = getSizeOfText(LED_wall_label_text, arialTitleFont_LED)
+text_size = CalcCenter(W, H, w, h)
+text_x, text_y = text_size
+text_y = text_y - h  # moves the text up
+text_size = text_x, text_y
+
+#draws Label text
+draw.text(text_size,
+    LED_wall_label_text,
+    fill='white',
+    font=arialTitleFont_LED
 )
 
 
