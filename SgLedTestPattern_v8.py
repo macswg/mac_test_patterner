@@ -15,9 +15,11 @@ logging.basicConfig(
 # disables logging
 # logging.disable(logging.CRITICAL)
 
-# Import pillow image module
+# Import pillow image module and other stuff
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
+import sys
+
 
 logging.debug(' Start of program')
 
@@ -79,7 +81,7 @@ logging.debug('Start of background color Validation definition')
 def color_input_validation():
     while True:
         try:
-            color = input('\n' + 'What is the background color of the tile? ')
+            color = input('\n' + 'What is your background color? ')
             rgbCol = ImageColor.getcolor(str(color), 'RGBA')
         except ValueError:
             print('That is not a color I recognize, please try again. ')
@@ -102,27 +104,6 @@ def even_is_true(i):
         x = False
     return x
 
-
-# Ask for user input of LED tile dimensions and bg color
-tileResWidth = int_input_validation(
-    '\n' + 'What is the tile width (horizontal resolution)? '
-)
-tileResHeight = int_input_validation(
-    '\n' + 'What is the tile height (vertical resolution)? '
-)
-
-''' color is asked for in the color_input_validation function because
-    I don't know how else to verify value is correct
-'''
-bgColor = color_input_validation()
-
-# Log prints out summary of values captured for debugging's sake.
-logging.debug(
-    '\n' + 'Values returned to the program: ' + '\n'
-    'tileResWidth is ' + str(tileResWidth) + '\n'
-    'tileResHeight is ' + str(tileResHeight) + '\n'
-    'color value is ' + str(bgColor) + '\n'
-)
 
 ''' Function to add a 1 pixel border
  likely need to call open image if sending an image to the function that
@@ -150,6 +131,106 @@ def makeBorder(image):
     except ValueError:
         print('There is a problem with the image called to the function')
 
+
+# Festival input pattern
+def fest_pattern_bool(i=False):
+    i = input('''Do you want to create a Festival Test Pattern with no LED outlines?
+Leave blank for LED test pattern -- enter y for festival pattern: '''
+    )
+    if i == 'y':
+        i = True
+    else:
+        i = False
+    return i
+fest_pattern = fest_pattern_bool()
+
+
+if fest_pattern == True:
+    fest_wall_width = int_input_validation(
+        '\n' + 'Enter the horizontal resolution of the test pattern: '
+    )
+    fest_wall_height = int_input_validation(
+        '\n' + 'Enter the vertical resolution of the test pattern: '
+    )
+    fest_bgColor = color_input_validation()
+
+    # create new image
+    festIm = Image.new('RGBA', (fest_wall_width, fest_wall_height), fest_bgColor)
+
+
+    # Draw and scale an ellipse to remove anti-aliasing
+    scale_factor = 4
+    scale_w, scale_h = (
+        (fest_wall_width * scale_factor),
+        (fest_wall_height * scale_factor),
+    )
+
+    # PIL code: Create new image for circle
+    festCircle = Image.new(
+        'RGBA', (scale_w, scale_h), fest_bgColor
+    )
+
+
+    # Draw perfect circle
+    drawFestPatterns = ImageDraw.Draw(festCircle)
+    circRadius = min(scale_w, scale_h)
+
+  # create variables to draw a centered circle
+    def circleCenterPoints(i=circRadius, j=scale_w, k=scale_h):
+        tl_x = (j / 2) - (i / 2)
+        tl_y = (k / 2) - (i / 2)
+        br_x = (j / 2) + (i / 2)
+        br_y = (k / 2) + (i / 2)
+        return tl_x, tl_y, br_x, br_y
+
+    drawFestPatterns.ellipse(
+        (circleCenterPoints()),
+        fill=None, outline=(255, 255, 255), width=6
+    )
+
+    #draw x lines
+    drawFestPatterns.line((0, 0, scale_w, scale_h), fill=None, width=6, joint=None)
+    drawFestPatterns.line((0, scale_h, scale_w, 0), fill=None, width=6, joint=None)
+
+    # scales circle image to festival image size
+    original_size = (fest_wall_width, fest_wall_height)
+    festCircle = festCircle.resize(original_size, resample=1)
+
+    # pastes scaled circle onto image
+    festIm.paste(festCircle, (0, 0))
+
+    # Call make border function to add the border
+    makeBorder(festIm)
+
+    # saves image file
+    festIm.save('festTestPattern_1.png')
+
+    # exit program if fest pattern is true
+    exit()
+
+
+
+
+# Ask for user input of LED tile dimensions and bg color
+tileResWidth = int_input_validation(
+    '\n' + 'What is the tile width (horizontal resolution)? '
+)
+tileResHeight = int_input_validation(
+    '\n' + 'What is the tile height (vertical resolution)? '
+)
+
+''' color is asked for in the color_input_validation function because
+    I don't know how else to verify value is correct
+'''
+bgColor = color_input_validation()
+
+# Log prints out summary of values captured for debugging's sake.
+logging.debug(
+    '\n' + 'Values returned to the program: ' + '\n'
+    'tileResWidth is ' + str(tileResWidth) + '\n'
+    'tileResHeight is ' + str(tileResHeight) + '\n'
+    'color value is ' + str(bgColor) + '\n'
+)
 
 # Create new image of LED panel color 1
 logging.debug('Start of Create New Image ')
@@ -406,14 +487,18 @@ while True:
 
 # TODO: add information to grid bg
 
+# test edit of festival pattern option git rep branch
+# main branch should not have this edit
+
+# saves image file
+wallIm.save('wallTestPattern_1.png')
+
 
 logging.debug('wallPanelWidth value is: '
     + str(wallPanelWidth)
     + '\n END OF PROGRAM \n \n \n'
 )
 
-# test edit of festival pattern option git rep branch
-# main branch should not have this edit
 
-# saves image file
-wallIm.save('wallTestGrid_1.png')
+
+
