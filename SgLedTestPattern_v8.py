@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(
     filename='LedTestPatternLog.txt',
     level=logging.DEBUG,
-    format=' %(asctime)s - %(levelname)s - %(message)s'
+    format=' %(asctime)s - %(levelname)s - %(message)s',
 )
 
 # disables logging when uncommented
@@ -24,6 +24,7 @@ logging.debug(' Start of program')
 
 # Function to validate resolution input
 logging.debug('Start of resolution Validation function definition')
+
 
 def int_input_validation(prompt):
     while True:
@@ -47,8 +48,11 @@ def int_input_validation(prompt):
     Also returns tile height number
 '''
 
+
 def half_tile_check(i):
-    error1 = '\nThat is not a valid panel height\nEither use a whole number or add .5 for half panel\n'
+    error1 = (
+        '\nThat is not a valid panel height\nEither use a whole number or add .5 for half panel\n'
+    )
     while True:
         try:
             TILECOUNT = input(i)
@@ -76,6 +80,7 @@ def half_tile_check(i):
 # Function to validate the background color
 logging.debug('Start of background color Validation definition')
 
+
 def color_input_validation():
     while True:
         try:
@@ -93,7 +98,7 @@ def color_input_validation():
     logging.debug('color value (not returned to program): ' + str(color))
     return rgbCol
 
-
+# Function to adjust every other panel to get the alternating grid colors.
 def even_is_true(i):
     i = int(i)
     if (i % 2) == 0:
@@ -141,9 +146,11 @@ def CalcCenter(W, H, w, h):
 
 whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
 altBorderColor = ImageColor.getcolor('gray', 'RGBA')
+
+
 def makeBorder(image, color=whiteBorderColor):
     # border color
-    #borderColor = ImageColor.getcolor('white', 'RGBA')
+    # borderColor = ImageColor.getcolor('white', 'RGBA')
     try:
         width, height = image.size
         # top and bottom borders
@@ -166,7 +173,8 @@ def makeBorder(image, color=whiteBorderColor):
 
 # Festival input pattern
 def fest_pattern_bool(i=False):
-    i = input('''Do you want to create a Festival Test Pattern with no LED outlines?
+    i = input(
+        '''Do you want to create a Festival Test Pattern with no LED outlines?
     Leave blank for LED test pattern -- enter y for festival pattern: '''
     )
     if i == 'y':
@@ -174,8 +182,9 @@ def fest_pattern_bool(i=False):
     else:
         i = False
     return i
-fest_pattern = fest_pattern_bool()
 
+
+fest_pattern = fest_pattern_bool()
 
 
 # FESTIVAL TEST PATTERN -- IF SECTION
@@ -198,21 +207,20 @@ if fest_pattern == True:
 
     # Draw and scale an ellipse to remove anti-aliasing
     scale_factor = 4
+    line_width = 10
     scale_w, scale_h = (
         (fest_wall_width * scale_factor),
         (fest_wall_height * scale_factor),
     )
 
-    # PIL code: Create new image for circle and lines
-    festOverlaysIm = Image.new(
-        'RGBA', (scale_w, scale_h), fest_bgColor
-    )
 
+    # PIL code: Create new image for circle and lines
+    festOverlaysIm = Image.new('RGBA', (scale_w, scale_h), fest_bgColor)
 
     # Draw perfect circle
     drawFestPatterns = ImageDraw.Draw(festOverlaysIm)
     circRadius = min(scale_w, scale_h)
-    circRadius_w_Pad = circRadius - (circRadius * .05)
+    circRadius_w_Pad = circRadius - (circRadius * 0.05)
 
     # create variables to draw a centered circle
     def circleCenterPoints(i=circRadius_w_Pad, j=scale_w, k=scale_h):
@@ -223,14 +231,14 @@ if fest_pattern == True:
         return tl_x, tl_y, br_x, br_y
 
     drawFestPatterns.ellipse(
-        (circleCenterPoints()),
-        fill=None, outline=(overlay_color), width=6
+        circleCenterPoints(), 
+        fill=None, outline=(overlay_color),
+        width=line_width
     )
 
     # draw x lines
-    drawFestPatterns.line((0, 0, scale_w, scale_h), fill='gray', width=6, joint=None)
-    drawFestPatterns.line((0, scale_h, scale_w, 0), fill='gray', width=6, joint=None)
-
+    drawFestPatterns.line((0, 0, scale_w, scale_h), fill='gray', width=line_width, joint=None)
+    drawFestPatterns.line((0, scale_h, scale_w, 0), fill='gray', width=line_width, joint=None)
 
     # TEXT OVERLAY on FEST PATTERN -- These lines draw resolution and label of festival test pattern.
     draw = ImageDraw.Draw(festOverlaysIm)
@@ -240,15 +248,13 @@ if fest_pattern == True:
     # Asks user to enter a label
     fest_wall_label_text = input('What label do you want?')
 
-    #updates arialFont size
+    # updates arialFont size
     arialFont = ImageFont.truetype(
-        os.path.join(fontsFolder,
-        'arial.ttf'),
-        fontCalFunc(scale_w / 4 , scale_h / 4)
+        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(scale_w / 4, scale_h / 4)
     )
 
     # define vars for function that draws resolution text overlay
-    W, H,= scale_w, scale_h 
+    W, H, = scale_w, scale_h
     w, h = getSizeOfText(fest_res_text, arialFont)
     text_size = CalcCenter(W, H, w, h)
     text_x, text_y = text_size
@@ -256,32 +262,25 @@ if fest_pattern == True:
     text_size = text_x, text_y
 
     # draws fest res text
-    draw.text(text_size,
-        fest_res_text,
-        fill='white',
-        font=arialFont,
+    draw.text(
+        text_size, fest_res_text, fill='white', font=arialFont,
     )
-
 
     # updates arialFont size for title overlay text
     arialTitleFont = ImageFont.truetype(
-        os.path.join(fontsFolder,
-        'arial.ttf'),
-        fontCalFunc(scale_w / 4.5 , scale_h / 4.5)
+        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(scale_w / 4.5, scale_h / 4.5)
     )
 
     # updates variables to adjust position of fest title screen text
     w, h = getSizeOfText(fest_wall_label_text, arialTitleFont)
     text_size = CalcCenter(W, H, w, h)
     text_x, text_y = text_size
-    text_y = text_y - h # moves text up
+    text_y = text_y - h  # moves text up
     text_size = text_x, text_y
-    
+
     # draws fest wall label text
-    draw.text(text_size,
-        fest_wall_label_text,
-        fill='white',
-        font=arialTitleFont,
+    draw.text(
+        text_size, fest_wall_label_text, fill='white', font=arialTitleFont,
     )
 
     # scales festival overlays image to festival image size
@@ -301,15 +300,9 @@ if fest_pattern == True:
     exit()
 
 
-
-
 # Ask for user input of LED tile dimensions and bg color
-tileResWidth = int_input_validation(
-    '\n' + 'What is the tile width (horizontal resolution)? '
-)
-tileResHeight = int_input_validation(
-    '\n' + 'What is the tile height (vertical resolution)? '
-)
+tileResWidth = int_input_validation('\n' + 'What is the tile width (horizontal resolution)? ')
+tileResHeight = int_input_validation('\n' + 'What is the tile height (vertical resolution)? ')
 
 ''' color is asked for in the color_input_validation function because
     I don't know how else to verify value is correct
@@ -349,9 +342,7 @@ makeBorder(ledIm2, altBorderColor)
 
 # Ask for user input of wall dimensions
 logging.debug('Start tiling panels onto wall pattern')
-wallPanelWidth = int_input_validation(
-    '\n' + 'How many tiles wide do you need the pattern? '
-)
+wallPanelWidth = int_input_validation('\n' + 'How many tiles wide do you need the pattern? ')
 half_tile_bool, wallPanelHeight = half_tile_check(
     '\n' + 'How many tiles high do you need the pattern? (half-tiles are ok) '
 )
@@ -379,9 +370,7 @@ if half_tile_bool == True:
         ),
     )
 else:
-    wallIm = Image.new(
-        'RGBA', (wallPanelWidth * tileResWidth, wallPanelHeight * tileResHeight)
-    )
+    wallIm = Image.new('RGBA', (wallPanelWidth * tileResWidth, wallPanelHeight * tileResHeight))
 
 logging.debug('wallIm size = ' + str(wallIm.size))
 logging.debug('wallPanelWidth 118 = ' + str(wallPanelWidth))
@@ -433,9 +422,7 @@ if half_tile_bool == True:
             wallIm.paste(tile_color_1, (left, top))
     for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
         for topAlt in range(
-            (wallPanelHeight2 - (int(tileResHeight / 2))),
-            wallPanelHeight2,
-            tileResHeight * 2,
+            (wallPanelHeight2 - (int(tileResHeight / 2))), wallPanelHeight2, tileResHeight * 2,
         ):
             wallIm.paste(tile_color_2, (leftAlt, topAlt))
 
@@ -477,7 +464,6 @@ def iNc(i):
 '''
 
 
-
 # original line that calculates the width and height of text to be drawn
 w, h = draw.textsize(iNc(indexNums), font=arialFont)
 
@@ -504,20 +490,18 @@ while True:
     while indexNums[0] <= wallPanelWidth:
 
         loop_counter1 += 1
-        
-        logging.debug(
-            'While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums)
-        )
+
+        logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
 
         adjusted_x_coord_for_text = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
         adjusted_y_coord_for_text = ((H - h) / 2) + (indexNums[1] - 1) * tileResHeight
 
         # adds more text to half panels if they exist
         if half_tile_bool == True:
-            adjusted_x_coord_for_text_halfpanel = \
-                ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
-            adjusted_y_coord_for_text_halfpanel = \
-                ((half_H - h) / 2) + (indexNums[1]) * (tileResHeight)
+            adjusted_x_coord_for_text_halfpanel = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
+            adjusted_y_coord_for_text_halfpanel = ((half_H - h) / 2) + (indexNums[1]) * (
+                tileResHeight
+            )
 
         # calculates the width and height of text to be drawn
         w, h = draw.textsize(iNc(indexNums), font=arialFont)
@@ -530,11 +514,10 @@ while True:
             font=arialFont,
         )
 
-
         # adds to index number
         indexNums[1] += 1
 
-        logging.debug('indexNums update 370 ' +str(indexNums))
+        logging.debug('indexNums update 370 ' + str(indexNums))
 
         # calculates the width and height of text to be drawn
         w, h = draw.textsize(iNc(indexNums), font=arialFont)
@@ -547,21 +530,21 @@ while True:
             if indexNums[1] == wallPanelHeight + 1:
                 # draws text on the half panel
                 draw.text(
-                    (
-                        adjusted_x_coord_for_text_halfpanel,
-                        adjusted_y_coord_for_text_halfpanel,
-                    ),
+                    (adjusted_x_coord_for_text_halfpanel, adjusted_y_coord_for_text_halfpanel,),
                     iNc(indexNums),
                     fill='gray',
                     font=arialFont,
                 )
             logging.debug('END IF statement LOWER drawing half-tile text ' + str(indexNums))
             logging.debug('iNc function output = ' + str(iNc(indexNums)))
-            logging.debug('adjusted_x_coord_for_text_halfpanel = ' + str(adjusted_x_coord_for_text_halfpanel))
-            logging.debug('adjusted_y_coord_for_text_halfpanel = ' + str(adjusted_y_coord_for_text_halfpanel))
+            logging.debug(
+                'adjusted_x_coord_for_text_halfpanel = ' + str(adjusted_x_coord_for_text_halfpanel)
+            )
+            logging.debug(
+                'adjusted_y_coord_for_text_halfpanel = ' + str(adjusted_y_coord_for_text_halfpanel)
+            )
             logging.debug('adjusted_x_coord_for_text = ' + str(adjusted_x_coord_for_text))
             logging.debug('adjusted_y_coord_for_text = ' + str(adjusted_y_coord_for_text) + '\n')
-
 
         # original if statement
         if indexNums[1] == wallPanelHeight + 1:
@@ -576,9 +559,7 @@ while True:
 
             # calculates the width and height of text to be drawn
             w, h = draw.textsize(iNc(indexNums), font=arialFont)
-            logging.debug(
-                'draw.textsize w value = ' + str(w) + '-- h value = ' + str(h)
-            )
+            logging.debug('draw.textsize w value = ' + str(w) + '-- h value = ' + str(h))
 
     break
 
@@ -590,23 +571,20 @@ makeBorder(wallIm)
 # TODO: add information overlays (resolution, what else)
 
 
-
 # INFORMATION OVERLAYS ON LED TEST PATTERN SECTION -- draws resolution and title overlays
 
 wallsize = wallIm.size
 wallsizeX, wallsizeY = wallIm.size
 
 statsFontSize = fontCalFunc(wallsizeX / 4, wallsizeY / 4)
-arialFontStats = (
-    ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
-)
+arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
 
 
 # asks user for wall label
 LED_wall_label_text = input('What label do you want?')
 
 # updates variables for image resolution text overlays
-W, H,= wallsizeX, wallsizeY 
+W, H, = wallsizeX, wallsizeY
 w, h = getSizeOfText(wLLsz(wallsize), arialFontStats)
 text_size = CalcCenter(W, H, w, h)
 text_x, text_y = text_size
@@ -615,17 +593,12 @@ text_size = text_x, text_y
 
 # updates arialFont size for title overlay text
 arialTitleFont_LED = ImageFont.truetype(
-    os.path.join(fontsFolder,
-    'arial.ttf'),
-    fontCalFunc(wallsizeX / 4.5 , wallsizeY / 4.5)
+    os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(wallsizeX / 4.5, wallsizeY / 4.5)
 )
 
 # draws stats text
 draw.text(
-    text_size,
-    wLLsz(wallsize),
-    fill='white',
-    font=arialFontStats,
+    text_size, wLLsz(wallsize), fill='white', font=arialFontStats,
 )
 
 
@@ -636,28 +609,15 @@ text_x, text_y = text_size
 text_y = text_y - h  # moves the text up
 text_size = text_x, text_y
 
-#draws Label text
-draw.text(text_size,
-    LED_wall_label_text,
-    fill='white',
-    font=arialTitleFont_LED
-)
+# draws Label text
+draw.text(text_size, LED_wall_label_text, fill='white', font=arialTitleFont_LED)
 
 
 # TODO: combine multiple grids onto the same image
-
-# TODO: add information to grid bg
 
 
 # saves image file
 wallIm.save('wallTestPattern_1.png')
 
 
-logging.debug('wallPanelWidth value is: '
-    + str(wallPanelWidth)
-    + '\n END OF PROGRAM \n \n \n'
-)
-
-
-
-
+logging.debug('wallPanelWidth value is: ' + str(wallPanelWidth) + '\n END OF PROGRAM \n \n \n')
