@@ -23,9 +23,6 @@ import sys
 logging.debug(' Start of program')
 
 # Function to validate resolution input
-logging.debug('Start of resolution Validation function definition')
-
-
 def int_input_validation(prompt):
     while True:
         try:
@@ -38,7 +35,6 @@ def int_input_validation(prompt):
             # input successfully parsed!
             # we're ready to exit the loop.
             break
-    logging.debug('resolution Validation function returning value')
     return value
 
 
@@ -78,9 +74,6 @@ def half_tile_check(i):
 
 
 # Function to validate the background color
-logging.debug('Start of background color Validation definition')
-
-
 def color_input_validation():
     while True:
         try:
@@ -94,8 +87,7 @@ def color_input_validation():
             # input succesfully parsed!
             # ready to exit the loop.
             break
-    logging.debug('color validation function returning value. ')
-    logging.debug('color value (not returned to program): ' + str(color))
+    logging.debug('color value = ' + str(color))
     return rgbCol
 
 # Function to adjust every other panel to get the alternating grid colors.
@@ -175,7 +167,7 @@ def makeBorder(image, color=whiteBorderColor):
 def fest_pattern_bool(i=False):
     i = input(
         '''Do you want to create a Festival Test Pattern with no LED outlines?
-    Leave blank for LED test pattern -- enter y for festival pattern: '''
+    [Type y for festival pattern -- Leave blank to draw LED panel outlines.] '''
     )
     if i == 'y':
         i = True
@@ -246,7 +238,7 @@ if fest_pattern == True:
     fest_res_text = wLLsz(fest_wallsize)
 
     # Asks user to enter a label
-    fest_wall_label_text = input('What label do you want?')
+    fest_wall_label_text = input('What label do you want? ')
 
     # updates arialFont size
     arialFont = ImageFont.truetype(
@@ -331,6 +323,7 @@ r = int(r * 0.7)
 g = int(g * 0.7)
 b = int(b * 0.7)
 bgColor2 = r, g, b, a
+
 logging.debug('Start for loop to copy panel images (second color) ' + str(bgColor2))
 
 ledIm2 = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor2)
@@ -354,6 +347,11 @@ if half_tile_bool == True:
     ledIm4_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor2)
     makeBorder(ledIm3_half, altBorderColor)
     makeBorder(ledIm4_half, altBorderColor)
+    # Asks user if they want half-tiles on the top of the raster (leave blank for bottom)
+    half_tile_top = input(
+        '''\n Do you want to move the half-tiles to the top of the raster?
+    [Type y for yes -- Leave blank to keep half-tiles at the bottom of the raster.] '''
+    )
 else:
     logging.debug('half tile is false')
 
@@ -568,8 +566,6 @@ while True:
 makeBorder(wallIm)
 
 
-# TODO: add information overlays (resolution, what else)
-
 
 # INFORMATION OVERLAYS ON LED TEST PATTERN SECTION -- draws resolution and title overlays
 
@@ -581,7 +577,7 @@ arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), stat
 
 
 # asks user for wall label
-LED_wall_label_text = input('What label do you want?')
+LED_wall_label_text = input('\n What label do you want on the raster? ')
 
 # updates variables for image resolution text overlays
 W, H, = wallsizeX, wallsizeY
