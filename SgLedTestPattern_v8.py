@@ -98,7 +98,7 @@ def color_input_validation():
     logging.debug('color value (not returned to program): ' + str(color))
     return rgbCol
 
-
+# Function to adjust every other panel to get the alternating grid colors.
 def even_is_true(i):
     i = int(i)
     if (i % 2) == 0:
@@ -207,10 +207,12 @@ if fest_pattern == True:
 
     # Draw and scale an ellipse to remove anti-aliasing
     scale_factor = 4
+    line_width = 10
     scale_w, scale_h = (
         (fest_wall_width * scale_factor),
         (fest_wall_height * scale_factor),
     )
+
 
     # PIL code: Create new image for circle and lines
     festOverlaysIm = Image.new('RGBA', (scale_w, scale_h), fest_bgColor)
@@ -228,11 +230,15 @@ if fest_pattern == True:
         br_y = (k / 2) + (i / 2)
         return tl_x, tl_y, br_x, br_y
 
-    drawFestPatterns.ellipse((circleCenterPoints()), fill=None, outline=(overlay_color), width=6)
+    drawFestPatterns.ellipse(
+        circleCenterPoints(), 
+        fill=None, outline=(overlay_color),
+        width=line_width
+    )
 
     # draw x lines
-    drawFestPatterns.line((0, 0, scale_w, scale_h), fill='gray', width=6, joint=None)
-    drawFestPatterns.line((0, scale_h, scale_w, 0), fill='gray', width=6, joint=None)
+    drawFestPatterns.line((0, 0, scale_w, scale_h), fill='gray', width=line_width, joint=None)
+    drawFestPatterns.line((0, scale_h, scale_w, 0), fill='gray', width=line_width, joint=None)
 
     # TEXT OVERLAY on FEST PATTERN -- These lines draw resolution and label of festival test pattern.
     draw = ImageDraw.Draw(festOverlaysIm)
