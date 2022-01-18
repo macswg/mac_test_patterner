@@ -163,6 +163,18 @@ def makeBorder(image, color=whiteBorderColor):
         print('There is a problem with the image called to the function')
 
 
+# Function to return true if user selects half-panels to be on top of the raster
+def half_tile_top_bool(i=False):
+    i = input(
+        '''\n Do you want to move the half-tiles to the top of the raster?
+    [Type y for yes -- Leave blank to keep half-tiles at the bottom of the raster.] '''
+    )
+    if i == 'y':
+        i = True
+    else:
+        i = False
+    return i
+
 # Festival input pattern
 def fest_pattern_bool(i=False):
     i = input(
@@ -317,7 +329,7 @@ ledIm = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor)
 makeBorder(ledIm, altBorderColor)
 
 # Create new image of LED panels color 2
-logging.debug('lightens color by 50%')
+logging.debug('lightens color by some percentage')
 r, g, b, a = bgColor
 r = int(r * 0.7)
 g = int(g * 0.7)
@@ -348,10 +360,7 @@ if half_tile_bool == True:
     makeBorder(ledIm3_half, altBorderColor)
     makeBorder(ledIm4_half, altBorderColor)
     # Asks user if they want half-tiles on the top of the raster (leave blank for bottom)
-    half_tile_top = input(
-        '''\n Do you want to move the half-tiles to the top of the raster?
-    [Type y for yes -- Leave blank to keep half-tiles at the bottom of the raster.] '''
-    )
+    half_tile_top = half_tile_top_bool()
 else:
     logging.debug('half tile is false')
 
@@ -371,59 +380,68 @@ else:
     wallIm = Image.new('RGBA', (wallPanelWidth * tileResWidth, wallPanelHeight * tileResHeight))
 
 logging.debug('wallIm size = ' + str(wallIm.size))
-logging.debug('wallPanelWidth 118 = ' + str(wallPanelWidth))
+logging.debug('wallPanelWidth = ' + str(wallPanelWidth))
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
-logging.debug('tileResWidth 119 = ' + str(tileResWidth))
-logging.debug('tileResHeight 120 = ' + str(tileResHeight))
+logging.debug('tileResWidth = ' + str(tileResWidth))
+logging.debug('tileResHeight = ' + str(tileResHeight))
 
-# For loop tiling LED panels onto wall image with alternating colors
+
+
+
+# FOR LOOP DRAWING LED PANELS onto wall image with alternating colors
+
 wallPanelWidth2, wallPanelHeight2 = wallIm.size
 tileResWidth, tileResHeight = ledIm.size
 
 logging.debug('wallPanelWidth = ' + str(wallPanelWidth))
 logging.debug('tileResWidth = ' + str(tileResWidth))
 logging.debug('Start for loop to copy panel images with alternating colors')
-
 logging.debug('wallPanelHeight begin loop at 213 = ' + str(wallPanelHeight))
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
+
+# Variables defined to start drawing full-panels at the top of the wall:
+top_start = 0
+top_start_alt = tileResHeight
+
+logging.debug('\n' + 'top_start variable defined' + str(top_start) + str(top_start_alt))
+
+# Updates start of tile loops by updating top start variables:
+if half_tile_bool == True:
+    if half_tile_top == True:
+        top_start = 0 - wallPanelHeight2
+        top_start_alt = tileResHeight - wallPanelHeight2
+
+logging.debug('\n' + 'top_start variable defined again' + str(top_start) + str(top_start_alt) + '\n')
+
 for left in range(0, wallPanelWidth2, tileResWidth * 2):
-    for top in range(0, wallPanelHeight2, tileResHeight * 2):
+    for top in range(top_start, wallPanelHeight2, tileResHeight * 2):
         wallIm.paste(ledIm, (left, top))
 for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
-    for topAlt in range(tileResHeight, wallPanelHeight2, tileResHeight * 2):
+    for topAlt in range(top_start_alt, wallPanelHeight2, tileResHeight * 2):
         wallIm.paste(ledIm, (leftAlt, topAlt))
 for left in range(0, wallPanelWidth2, tileResWidth * 2):
-    for top in range(tileResHeight, wallPanelHeight2, tileResHeight * 2):
+    for top in range(top_start_alt, wallPanelHeight2, tileResHeight * 2):
         wallIm.paste(ledIm2, (left, top))
 for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
-    for topAlt in range(0, wallPanelHeight2, tileResHeight * 2):
+    for topAlt in range(top_start, wallPanelHeight2, tileResHeight * 2):
         wallIm.paste(ledIm2, (leftAlt, topAlt))
 
-logging.debug('wallPanelHeight begin loop at 229 = ' + str(wallPanelHeight))
+logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
-# If half panels then do this - alternates half-panel colors
-if half_tile_bool == True:
-    if even_is_true(wallPanelHeight) == True:
-        tile_color_1 = ledIm3_half
-        tile_color_2 = ledIm4_half
-    else:
-        tile_color_1 = ledIm4_half
-        tile_color_2 = ledIm3_half
-    for left in range(0, wallPanelWidth2, tileResWidth * 2):
-        for top in range(
-            (wallPanelHeight2 - int(tileResHeight / 2)),
-            wallPanelHeight2,
-            int(tileResHeight / 2) * 2,
-        ):
-            wallIm.paste(tile_color_1, (left, top))
-    for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
-        for topAlt in range(
-            (wallPanelHeight2 - (int(tileResHeight / 2))), wallPanelHeight2, tileResHeight * 2,
-        ):
-            wallIm.paste(tile_color_2, (leftAlt, topAlt))
 
+
+
+# HALF PANELS -- Draws half-panels onto the wall image and alternates half-panel colors
+
+if half_tile_bool == True:
+
+    # If half-tiles on the top, this (and the following if statement) changes where half-tiles are drawn
+    
+    # default condition -- half-tile on bottom
+    true_toggle = True
+    top_start_half_panel = wallPanelHeight2 - (int(tileResHeight / 2))
 
 logging.debug('For loop A copying led panels to wall complete')
 logging.debug('tileResWidth 141 = ' + str(tileResWidth))
@@ -493,7 +511,12 @@ while True:
 
         adjusted_x_coord_for_text = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
         adjusted_y_coord_for_text = ((H - h) / 2) + (indexNums[1] - 1) * tileResHeight
-
+        # this if statement adjust the y variable above to move text up
+        if half_tile_bool == True:
+            if half_tile_top == True:
+                adjusted_y_coord_for_text -= tileResHeight / 4
+                if indexNums[1] >= 2:
+                    adjusted_y_coord_for_text -= tileResHeight / 4
         # adds more text to half panels if they exist
         if half_tile_bool == True:
             adjusted_x_coord_for_text_halfpanel = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
@@ -526,6 +549,8 @@ while True:
 
             # TODO: Some way to only draw if tile is half width?
             if indexNums[1] == wallPanelHeight + 1:
+                if half_tile_top == True:
+                    adjusted_y_coord_for_text_halfpanel -= tileResHeight / 4
                 # draws text on the half panel
                 draw.text(
                     (adjusted_x_coord_for_text_halfpanel, adjusted_y_coord_for_text_halfpanel,),
