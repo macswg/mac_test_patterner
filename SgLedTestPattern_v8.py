@@ -13,7 +13,7 @@ logging.basicConfig(
 )
 
 # disables logging when uncommented
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 
 # Import pillow image module and other stuff
 from PIL import Image, ImageDraw, ImageFont, ImageColor
