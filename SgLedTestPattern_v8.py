@@ -253,9 +253,14 @@ if fest_pattern == True:
     fest_wall_label_text = input('What label do you want? ')
 
     # updates arialFont size
+    font_scale_w, font_scale_h = scale_w / 4, scale_h / 4
+    # makes text bigger if wall is smaller than 300 pixels
+    if min(fest_wallsize) <= 300:
+        font_scale_w, font_scale_h = scale_w / 2, scale_h / 2
     arialFont = ImageFont.truetype(
-        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(scale_w / 4, scale_h / 4)
+        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
+    
 
     # define vars for function that draws resolution text overlay
     W, H, = scale_w, scale_h
@@ -271,9 +276,13 @@ if fest_pattern == True:
     )
 
     # updates arialFont size for title overlay text
+    font_scale_w, font_scale_h = scale_w / 4.5, scale_h / 4.5
+    if min(fest_wallsize) <= 300:
+        font_scale_w, font_scale_h = scale_w / 2, scale_h / 2
     arialTitleFont = ImageFont.truetype(
-        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(scale_w / 4.5, scale_h / 4.5)
+        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
+
 
     # updates variables to adjust position of fest title screen text
     w, h = getSizeOfText(fest_wall_label_text, arialTitleFont)
@@ -598,6 +607,8 @@ wallsize = wallIm.size
 wallsizeX, wallsizeY = wallIm.size
 
 statsFontSize = fontCalFunc(wallsizeX / 4, wallsizeY / 4)
+if min(wallsize) <= 300:
+    statsFontSize = fontCalFunc(wallsizeX / 1.5, wallsizeY / 1.5)
 arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
 
 
@@ -613,8 +624,11 @@ text_y = text_y + (h / 2)
 text_size = text_x, text_y
 
 # updates arialFont size for title overlay text
+statsFontSize = fontCalFunc(wallsizeX / 4.5, wallsizeY / 4.5)
+if min(wallsize) <= 300:
+    statsFontSize = fontCalFunc(wallsizeX / 2, wallsizeY / 2)
 arialTitleFont_LED = ImageFont.truetype(
-    os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(wallsizeX / 4.5, wallsizeY / 4.5)
+    os.path.join(fontsFolder, 'arial.ttf'), statsFontSize
 )
 
 # draws stats text
