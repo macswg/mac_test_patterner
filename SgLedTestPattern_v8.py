@@ -5,6 +5,11 @@
 
 # logging
 import logging
+# Import pillow image module and other stuff
+from PIL import Image, ImageDraw, ImageFont, ImageColor
+import os
+import sys
+
 
 logging.basicConfig(
     filename='LedTestPatternLog.txt',
@@ -15,12 +20,8 @@ logging.basicConfig(
 # disables logging when uncommented
 logging.disable(logging.CRITICAL)
 
-# Import pillow image module and other stuff
-from PIL import Image, ImageDraw, ImageFont, ImageColor
-import os
-import sys
-
 logging.debug(' Start of program')
+
 
 # Function to validate resolution input
 def int_input_validation(prompt):
@@ -89,6 +90,7 @@ def color_input_validation():
             break
     logging.debug('color value = ' + str(color))
     return rgbCol
+
 
 # Function to adjust every other panel to get the alternating grid colors.
 def even_is_true(i):
@@ -175,6 +177,7 @@ def half_tile_top_bool(i=False):
         i = False
     return i
 
+
 # Festival input pattern
 def fest_pattern_bool(i=False):
     i = input(
@@ -193,7 +196,7 @@ fest_pattern = fest_pattern_bool()
 
 # FESTIVAL TEST PATTERN -- IF SECTION
 
-if fest_pattern == True:
+if fest_pattern is True:
     fest_wall_width = int_input_validation(
         '\n' + 'Enter the horizontal resolution of the test pattern: '
     )
@@ -362,7 +365,7 @@ half_tile_bool, wallPanelHeight = half_tile_check(
 )
 
 
-if half_tile_bool == True:
+if half_tile_bool is True:
     logging.debug('half tile is TRUE')
     ledIm3_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor)
     ledIm4_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor2)
@@ -377,7 +380,7 @@ else:
 logging.debug('Program continues after half_tile_bool')
 
 # Create new image at size of wall
-if half_tile_bool == True:
+if half_tile_bool is True:
     wallIm = Image.new(
         'RGBA',
         (
@@ -416,8 +419,8 @@ top_start_alt = tileResHeight
 logging.debug('\n' + 'top_start variable defined' + str(top_start) + str(top_start_alt))
 
 # Updates start of tile loops by updating top start variables:
-if half_tile_bool == True:
-    if half_tile_top == True:
+if half_tile_bool is True:
+    if half_tile_top is True:
         top_start = 0 - wallPanelHeight2
         top_start_alt = tileResHeight - wallPanelHeight2
 
@@ -444,7 +447,7 @@ logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
 # HALF PANELS -- Draws half-panels onto the wall image and alternates half-panel colors
 
-if half_tile_bool == True:
+if half_tile_bool is True:
 
     # If half-tiles on the top, this (and the following if statement) changes where half-tiles are drawn
     
@@ -498,7 +501,7 @@ adjusted_x_coord_for_text, adjusted_y_coord_for_text = (
     CENT_X_CORD_FOR_TEXT,
     CENT_Y_CORD_FOR_TEXT,
 )
-if half_tile_bool == True:
+if half_tile_bool is True:
     CENT_half_Y_CORD_FOR_TEXT = (half_H - h) / 2
     adjusted_y_coord_for_text_halfpanel = CENT_half_Y_CORD_FOR_TEXT
 
@@ -521,13 +524,13 @@ while True:
         adjusted_x_coord_for_text = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
         adjusted_y_coord_for_text = ((H - h) / 2) + (indexNums[1] - 1) * tileResHeight
         # this if statement adjust the y variable above to move text up
-        if half_tile_bool == True:
-            if half_tile_top == True:
+        if half_tile_bool is True:
+            if half_tile_top is True:
                 adjusted_y_coord_for_text -= tileResHeight / 4
                 if indexNums[1] >= 2:
                     adjusted_y_coord_for_text -= tileResHeight / 4
         # adds more text to half panels if they exist
-        if half_tile_bool == True:
+        if half_tile_bool is True:
             adjusted_x_coord_for_text_halfpanel = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
             adjusted_y_coord_for_text_halfpanel = ((half_H - h) / 2) + (indexNums[1]) * (
                 tileResHeight
@@ -553,12 +556,12 @@ while True:
         w, h = draw.textsize(iNc(indexNums), font=arialFont)
 
         # This if statements draws the half-tile numbers
-        if half_tile_bool == True:
+        if half_tile_bool is True:
             logging.debug('Begin drawing half-tile text ')
 
             # TODO: Some way to only draw if tile is half width?
             if indexNums[1] == wallPanelHeight + 1:
-                if half_tile_top == True:
+                if half_tile_top is True:
                     adjusted_y_coord_for_text_halfpanel -= tileResHeight / 4
                 # draws text on the half panel
                 draw.text(
