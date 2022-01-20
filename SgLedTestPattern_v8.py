@@ -8,7 +8,9 @@ import logging
 # Import pillow image module and other stuff
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
-import sys
+
+# removing sys import becuase it is not used
+# import sys
 
 
 logging.basicConfig(
@@ -108,6 +110,8 @@ fontsFolder = 'FONT_FOLDER'
 # I'm making the fontCal variable a function:
 # this line calculates the font size needed
 # fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
+
+
 def fontCalFunc(i=72, j=72):
     x = int(min(i, j) / 2 * 0.6)
     return x
@@ -220,7 +224,7 @@ if fest_pattern is True:
         (fest_wall_height * scale_factor),
     )
 
-
+# noqa: E302
     # PIL code: Create new image for circle and lines
     festOverlaysIm = Image.new('RGBA', (scale_w, scale_h), fest_bgColor)
 
@@ -264,7 +268,6 @@ if fest_pattern is True:
         os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
     
-
     # define vars for function that draws resolution text overlay
     W, H, = scale_w, scale_h
     w, h = getSizeOfText(fest_res_text, arialFont)
@@ -285,7 +288,6 @@ if fest_pattern is True:
     arialTitleFont = ImageFont.truetype(
         os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
-
 
     # updates variables to adjust position of fest title screen text
     w, h = getSizeOfText(fest_wall_label_text, arialTitleFont)
@@ -397,7 +399,7 @@ logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
 logging.debug('tileResWidth = ' + str(tileResWidth))
 logging.debug('tileResHeight = ' + str(tileResHeight))
 
-
+# noqa: E302
 
 
 # FOR LOOP DRAWING LED PANELS onto wall image with alternating colors
@@ -443,8 +445,8 @@ logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
 
-
-
+#
+#
 # HALF PANELS -- Draws half-panels onto the wall image and alternates half-panel colors
 
 if half_tile_bool is True:
@@ -480,6 +482,8 @@ arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), fontCal)
 indexNums = [1, 1]
 
 # This function converts list to string for use in draw.text lines
+
+
 def iNc(i):
     i = ', '.join(str(e) for e in indexNums)
     return i
@@ -603,7 +607,8 @@ while True:
 makeBorder(wallIm)
 
 
-
+#
+#
 # INFORMATION OVERLAYS ON LED TEST PATTERN SECTION -- draws resolution and title overlays
 
 wallsize = wallIm.size
