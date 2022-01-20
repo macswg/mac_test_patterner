@@ -1,0 +1,18 @@
+# Ignore Mac system files
+.DS_store
+
+# Ignore all text files
+*.txt
+
+# Ignore files related to API keys
+.env
+
+# Ignore images the test pattern produces
+*.png
+
+# Ignore env directory
+env/
+
+# Ignore mac files
+._*
+
