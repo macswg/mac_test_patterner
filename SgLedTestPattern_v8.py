@@ -5,6 +5,13 @@
 
 # logging
 import logging
+# Import pillow image module and other stuff
+from PIL import Image, ImageDraw, ImageFont, ImageColor
+import os
+
+# removing sys import becuase it is not used
+# import sys
+
 
 logging.basicConfig(
     filename='LedTestPatternLog.txt',
@@ -15,12 +22,8 @@ logging.basicConfig(
 # disables logging when uncommented
 logging.disable(logging.CRITICAL)
 
-# Import pillow image module and other stuff
-from PIL import Image, ImageDraw, ImageFont, ImageColor
-import os
-import sys
-
 logging.debug(' Start of program')
+
 
 # Function to validate resolution input
 def int_input_validation(prompt):
@@ -90,6 +93,7 @@ def color_input_validation():
     logging.debug('color value = ' + str(color))
     return rgbCol
 
+
 # Function to adjust every other panel to get the alternating grid colors.
 def even_is_true(i):
     i = int(i)
@@ -106,6 +110,8 @@ fontsFolder = 'FONT_FOLDER'
 # I'm making the fontCal variable a function:
 # this line calculates the font size needed
 # fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
+
+
 def fontCalFunc(i=72, j=72):
     x = int(min(i, j) / 2 * 0.6)
     return x
@@ -175,6 +181,7 @@ def half_tile_top_bool(i=False):
         i = False
     return i
 
+
 # Festival input pattern
 def fest_pattern_bool(i=False):
     i = input(
@@ -193,7 +200,7 @@ fest_pattern = fest_pattern_bool()
 
 # FESTIVAL TEST PATTERN -- IF SECTION
 
-if fest_pattern == True:
+if fest_pattern is True:
     fest_wall_width = int_input_validation(
         '\n' + 'Enter the horizontal resolution of the test pattern: '
     )
@@ -217,7 +224,7 @@ if fest_pattern == True:
         (fest_wall_height * scale_factor),
     )
 
-
+# noqa: E302
     # PIL code: Create new image for circle and lines
     festOverlaysIm = Image.new('RGBA', (scale_w, scale_h), fest_bgColor)
 
@@ -261,7 +268,6 @@ if fest_pattern == True:
         os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
     
-
     # define vars for function that draws resolution text overlay
     W, H, = scale_w, scale_h
     w, h = getSizeOfText(fest_res_text, arialFont)
@@ -282,7 +288,6 @@ if fest_pattern == True:
     arialTitleFont = ImageFont.truetype(
         os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
-
 
     # updates variables to adjust position of fest title screen text
     w, h = getSizeOfText(fest_wall_label_text, arialTitleFont)
@@ -362,7 +367,7 @@ half_tile_bool, wallPanelHeight = half_tile_check(
 )
 
 
-if half_tile_bool == True:
+if half_tile_bool is True:
     logging.debug('half tile is TRUE')
     ledIm3_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor)
     ledIm4_half = Image.new('RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor2)
@@ -377,7 +382,7 @@ else:
 logging.debug('Program continues after half_tile_bool')
 
 # Create new image at size of wall
-if half_tile_bool == True:
+if half_tile_bool is True:
     wallIm = Image.new(
         'RGBA',
         (
@@ -394,7 +399,7 @@ logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
 logging.debug('tileResWidth = ' + str(tileResWidth))
 logging.debug('tileResHeight = ' + str(tileResHeight))
 
-
+# noqa: E302
 
 
 # FOR LOOP DRAWING LED PANELS onto wall image with alternating colors
@@ -416,8 +421,8 @@ top_start_alt = tileResHeight
 logging.debug('\n' + 'top_start variable defined' + str(top_start) + str(top_start_alt))
 
 # Updates start of tile loops by updating top start variables:
-if half_tile_bool == True:
-    if half_tile_top == True:
+if half_tile_bool is True:
+    if half_tile_top is True:
         top_start = 0 - wallPanelHeight2
         top_start_alt = tileResHeight - wallPanelHeight2
 
@@ -440,11 +445,11 @@ logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
 logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
 
-
-
+#
+#
 # HALF PANELS -- Draws half-panels onto the wall image and alternates half-panel colors
 
-if half_tile_bool == True:
+if half_tile_bool is True:
 
     # If half-tiles on the top, this (and the following if statement) changes where half-tiles are drawn
     
@@ -477,6 +482,8 @@ arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), fontCal)
 indexNums = [1, 1]
 
 # This function converts list to string for use in draw.text lines
+
+
 def iNc(i):
     i = ', '.join(str(e) for e in indexNums)
     return i
@@ -498,7 +505,7 @@ adjusted_x_coord_for_text, adjusted_y_coord_for_text = (
     CENT_X_CORD_FOR_TEXT,
     CENT_Y_CORD_FOR_TEXT,
 )
-if half_tile_bool == True:
+if half_tile_bool is True:
     CENT_half_Y_CORD_FOR_TEXT = (half_H - h) / 2
     adjusted_y_coord_for_text_halfpanel = CENT_half_Y_CORD_FOR_TEXT
 
@@ -521,13 +528,13 @@ while True:
         adjusted_x_coord_for_text = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
         adjusted_y_coord_for_text = ((H - h) / 2) + (indexNums[1] - 1) * tileResHeight
         # this if statement adjust the y variable above to move text up
-        if half_tile_bool == True:
-            if half_tile_top == True:
+        if half_tile_bool is True:
+            if half_tile_top is True:
                 adjusted_y_coord_for_text -= tileResHeight / 4
                 if indexNums[1] >= 2:
                     adjusted_y_coord_for_text -= tileResHeight / 4
         # adds more text to half panels if they exist
-        if half_tile_bool == True:
+        if half_tile_bool is True:
             adjusted_x_coord_for_text_halfpanel = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
             adjusted_y_coord_for_text_halfpanel = ((half_H - h) / 2) + (indexNums[1]) * (
                 tileResHeight
@@ -553,12 +560,12 @@ while True:
         w, h = draw.textsize(iNc(indexNums), font=arialFont)
 
         # This if statements draws the half-tile numbers
-        if half_tile_bool == True:
+        if half_tile_bool is True:
             logging.debug('Begin drawing half-tile text ')
 
             # TODO: Some way to only draw if tile is half width?
             if indexNums[1] == wallPanelHeight + 1:
-                if half_tile_top == True:
+                if half_tile_top is True:
                     adjusted_y_coord_for_text_halfpanel -= tileResHeight / 4
                 # draws text on the half panel
                 draw.text(
@@ -600,7 +607,8 @@ while True:
 makeBorder(wallIm)
 
 
-
+#
+#
 # INFORMATION OVERLAYS ON LED TEST PATTERN SECTION -- draws resolution and title overlays
 
 wallsize = wallIm.size
