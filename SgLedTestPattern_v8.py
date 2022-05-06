@@ -265,7 +265,7 @@ if fest_pattern is True:
     if min(fest_wallsize) <= 300:
         font_scale_w, font_scale_h = scale_w / 2, scale_h / 2
     arialFont = ImageFont.truetype(
-        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
+        os.path.join(fontsFolder, 'Arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
     
     # define vars for function that draws resolution text overlay
@@ -286,7 +286,7 @@ if fest_pattern is True:
     if min(fest_wallsize) <= 300:
         font_scale_w, font_scale_h = scale_w / 2, scale_h / 2
     arialTitleFont = ImageFont.truetype(
-        os.path.join(fontsFolder, 'arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
+        os.path.join(fontsFolder, 'Arial.ttf'), fontCalFunc(font_scale_w, font_scale_h)
     )
 
     # updates variables to adjust position of fest title screen text
@@ -473,7 +473,7 @@ logging.debug('W = ' + str(W) + 'H = ' + str(H) + 'half_H = ' + str(half_H))
 
 # calculate appropriate font size for panel resolution
 fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
-arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), fontCal)
+arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'Arial.ttf'), fontCal)
 
 ''' these variables are defined outside the loops
     so they can be manipulated
@@ -617,7 +617,7 @@ wallsizeX, wallsizeY = wallIm.size
 statsFontSize = fontCalFunc(wallsizeX / 4, wallsizeY / 4)
 if min(wallsize) <= 300:
     statsFontSize = fontCalFunc(wallsizeX / 1.5, wallsizeY / 1.5)
-arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, 'arial.ttf'), statsFontSize)
+arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, 'Arial.ttf'), statsFontSize)
 
 
 # asks user for wall label
@@ -636,7 +636,7 @@ statsFontSize = fontCalFunc(wallsizeX / 4.5, wallsizeY / 4.5)
 if min(wallsize) <= 300:
     statsFontSize = fontCalFunc(wallsizeX / 2, wallsizeY / 2)
 arialTitleFont_LED = ImageFont.truetype(
-    os.path.join(fontsFolder, 'arial.ttf'), statsFontSize
+    os.path.join(fontsFolder, 'Arial.ttf'), statsFontSize
 )
 
 # draws stats text
