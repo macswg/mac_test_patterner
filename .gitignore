@@ -9,3 +9,6 @@
 
 # Ignore images the test pattern produces
 *.png
+
+# Ignore env directory
+env/
