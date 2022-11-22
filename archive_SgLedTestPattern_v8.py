@@ -1,5 +1,5 @@
 #! python3
-# SgLedTestPattern_v1.py
+# SgLedTestPattern_v8.py
 
 # My first attempt at a LED test pattern generator.
 
@@ -8,9 +8,6 @@ import logging
 # Import pillow image module and other stuff
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
-
-# removing sys import becuase it is not used
-# import sys
 
 
 logging.basicConfig(
@@ -479,6 +476,7 @@ arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'Arial.ttf'), fontCal)
     so they can be manipulated
     List (needs to be converted to string for use)
 '''
+
 indexNums = [1, 1]
 
 # This function converts list to string for use in draw.text lines

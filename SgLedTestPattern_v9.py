@@ -15,11 +15,14 @@ logging.basicConfig(
     level=logging.DEBUG,
     format=' %(asctime)s - %(levelname)s - %(message)s',
 )
-
 # disables logging when uncommented
 logging.disable(logging.CRITICAL)
-
 logging.debug(' Start of program')
+
+#TODO: There is a bug here on the vertical offset that needs work.
+# Variables to update to offset index numbers (1 is normal):
+i_offset_0 = 1
+i_offset_1 = 1
 
 
 # Function to validate resolution input
@@ -477,7 +480,7 @@ arialFont = ImageFont.truetype(os.path.join(fontsFolder, 'Arial.ttf'), fontCal)
     List (needs to be converted to string for use)
 '''
 
-indexNums = [1, 1]
+indexNums = [i_offset_0, i_offset_1]
 
 # This function converts list to string for use in draw.text lines
 
@@ -517,14 +520,14 @@ while True:
     # original while statement
     # while indexNums[0] <= wallPanelWidth + 1:
 
-    while indexNums[0] <= wallPanelWidth:
+    while indexNums[0] <= wallPanelWidth + i_offset_0:
 
         loop_counter1 += 1
 
         logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
 
-        adjusted_x_coord_for_text = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
-        adjusted_y_coord_for_text = ((H - h) / 2) + (indexNums[1] - 1) * tileResHeight
+        adjusted_x_coord_for_text = ((W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
+        adjusted_y_coord_for_text = ((H - h) / 2) + (indexNums[1] - i_offset_1) * tileResHeight
         # this if statement adjust the y variable above to move text up
         if half_tile_bool is True:
             if half_tile_top is True:
@@ -533,7 +536,7 @@ while True:
                     adjusted_y_coord_for_text -= tileResHeight / 4
         # adds more text to half panels if they exist
         if half_tile_bool is True:
-            adjusted_x_coord_for_text_halfpanel = ((W - w) / 2) + (indexNums[0] - 1) * tileResWidth
+            adjusted_x_coord_for_text_halfpanel = ((W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
             adjusted_y_coord_for_text_halfpanel = ((half_H - h) / 2) + (indexNums[1]) * (
                 tileResHeight
             )
