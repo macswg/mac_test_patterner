@@ -12,3 +12,7 @@
 
 # Ignore env directory
 env/
+
+# Ignore mac files
+._*
+
