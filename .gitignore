@@ -17,4 +17,4 @@ env/
 ._*
 
 # Ignore local files
-NOCOMMIT*
+ignore_*
