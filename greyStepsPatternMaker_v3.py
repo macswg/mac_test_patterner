@@ -137,6 +137,7 @@ def textBgLimitedWidth(wall_width):
     x = blockWidth * (middleRange + 1)
     return x
 
+new line to test 
 
 def fontCalFunc(i=14, j=14):
     x = int(min(i, j) / 26)
