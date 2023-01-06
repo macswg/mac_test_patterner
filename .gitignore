@@ -16,3 +16,5 @@ env/
 # Ignore mac files
 ._*
 
+# Ignore local files
+ignore_*
