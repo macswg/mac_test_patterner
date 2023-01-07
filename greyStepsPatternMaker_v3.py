@@ -15,7 +15,7 @@ logging.basicConfig(
     format=' %(asctime)s - %(levelname)s - %(message)s',
 )
 # disables logging when uncommented
-#logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 logging.debug('\n' + ' \n' + '\n' + '********** START OF PROGRAM **********')
 
 # This defines a variables that will be updated later
@@ -89,7 +89,7 @@ def stepValue(startValue, maxValue, steps):
     eachStepValue = (maxValue - startValue) / (steps)
     currentStep = startValue
     stepList = [startValue]
-    while currentStep < (maxValue):
+    for i in range(lowIndex):
         currentStep += eachStepValue
         stepList.append(int(currentStep))
     stepList[-1] = maxValue
@@ -100,12 +100,12 @@ def innerStepValue(startValue, maxValue, steps):
     eachStepValue = int((maxValue - startValue) / (steps))
     currentStep = startValue
     stepList = [startValue]
-    logging.debug('max value input into function = ' + str(maxValue))
-    logging.debug('currentStep 1 (start) = ' + str(currentStep))
-    logging.debug('each step value = ' + str(eachStepValue))
+    # logging.debug('max value input into function = ' + str(maxValue))
+    # logging.debug('currentStep 1 (start) = ' + str(currentStep))
+    # logging.debug('each step value = ' + str(eachStepValue))
     for i in range(middleRange):
         currentStep += eachStepValue
-        logging.debug('currentStep itr2 = ' + str(currentStep))
+        # logging.debug('currentStep itr2 = ' + str(currentStep))
         stepList.append(int(currentStep))
     stepList[-1] = maxValue
     return stepList
@@ -148,11 +148,24 @@ def getSizeOfText(text, font):
     return w, h
 
 
-def stepDivAdj(wall_width, greySteps):
+# def stepDivAdj(wall_width, greySteps):
+#     if 1920 < wall_width <= 3840:
+#         greySteps = 16
+#     elif wall_width > 3840:
+#         greySteps = 24
+#     return greySteps
+
+
+def stepDivAdj(wall_width, greySteps=12):
+    greySteps = 12
     if 1920 < wall_width <= 3840:
         greySteps = 16
-    elif wall_width > 3840:
+    elif wall_width > 6000:
         greySteps = 24
+    while wall_width%greySteps != 0:
+        greySteps += 1
+        if greySteps > 23:
+            break
     return greySteps
 
 
@@ -177,15 +190,21 @@ wall_height = int_input_validation(
     '\n' + 'Enter the vertical resolution of the test pattern: '
     )
 
+# Program input for testing
+# wall_width = 800
+# wall_height = 1000
+
+#program in while loop to troubleshoot wall width bug
+# while wall_width < 905:
+#     wall_width += 1
+
+logging.debug('\n' + '\n' + ' ************************************************************** wall width = ' + str(wall_width))
 
 # Variables
 fontsFolder = 'FONT_FOLDER'
 rgb = (0, 0, 0)
 # grey steps need to default to 12 and them bump to 16 if resolution larger than 1920x1080
-greySteps = 12
-logging.debug('greySteps before function = ' + str(greySteps))
-# adjuststs grey steps based on resolution
-greySteps = stepDivAdj(wall_width, greySteps)
+greySteps = stepDivAdj(wall_width)
 logging.debug('greySteps after function = ' + str(greySteps))
 lowIndex = round((greySteps / 4) - 1)
 highIndex = round(greySteps - (greySteps / 4) - 1)
@@ -221,13 +240,28 @@ for i in enumerate(middleLst):
 middleLst = middleLst[1:-1]
 rgbList = lowRangeLst + middleLst + hiRangeLst
 logging.debug('\n')
-for i in enumerate(rgbList):
-    logging.debug('rgb enumerated -- ' + str(i))
+# for i in enumerate(rgbList):
+#     logging.debug('rgb enumerated -- ' + str(i))
 logging.debug('\n')
 for i in rgbList:
     rgbTupleList.append(rgbTupleMaker(i))
 for i in enumerate(rgbTupleList):
     logging.debug('rgb tuple list -- ' + str(i))
+
+logging.debug('\n')
+logging.debug('first item in list =     ' + str(rgbTupleList[0]))
+logging.debug('lowIndex item in list =  ' + str(rgbTupleList[lowIndex]))
+logging.debug('highIndex item in list = ' + str(rgbTupleList[highIndex]))
+logging.debug('last item in list =      ' + str(rgbTupleList[-1]))
+logging.debug('\n')
+
+
+# add item to tuple list to fix pop error
+x = (0, 0, 0)
+rgbTupleList.append(x)
+
+
+logging.debug('rgbTupleList after append = ' + str(rgbTupleList))
 
 # paste step images
 greyIndex = 1
@@ -258,7 +292,7 @@ greyIm.alpha_composite(limitedTextBlockBlack, (LimTextBgXpos, LimTextBgYpos))
 draw = ImageDraw.Draw(greyIm)
 draw.fontmode = 'L'
 textString = 'Full Range'
-#update arialFont size
+# update arialFont size
 arialFont = ImageFont.truetype(
     os.path.join(fontsFolder, 'Arial.ttf'), fontCalFunc(wall_width, wall_height)
 )
@@ -285,7 +319,6 @@ w, h = getSizeOfText(textString, arialFont)
 text_x = blockWidth / 2
 text_spacer = blockWidth / 2
 loopCounter = 1
-logging.debug('rgbList = ' + str(rgbList))
 for i in rgbList:
     # textString = i
     fillColor = 'grey'
@@ -305,17 +338,6 @@ for i in rgbList:
 
 # saves image file
 greyIm.save('greyTestPattern.png')
-
-
-
-
-
-
-
-
-
-
-
 
 
 
