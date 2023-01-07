@@ -15,7 +15,7 @@ logging.basicConfig(
     format=' %(asctime)s - %(levelname)s - %(message)s',
 )
 # disables logging when uncommented
-#logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 logging.debug('\n' + ' \n' + '\n' + '********** START OF PROGRAM **********')
 
 # This defines a variables that will be updated later
