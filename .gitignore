@@ -22,3 +22,6 @@ ignore_*
 
 # Ignore archive folder
 archive
+
+# Ignore cache files
+__*
