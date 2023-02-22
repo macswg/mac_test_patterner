@@ -498,7 +498,6 @@ def main():
     logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
     logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
-
     #
     #
     """ HALF PANELS -- Draws half-panels onto the wall image and
@@ -550,7 +549,6 @@ def main():
         '# original line that calculates' line but rest of code 
         will need to be updated.
     """
-
 
     # original line that calculates the width and height of text to be drawn
     w, h = draw.textsize(iNc(indexNums), font=arialFont)
@@ -658,10 +656,8 @@ def main():
 
         break
 
-
     # draw white border around entire test pattern
     makeBorder(wallIm)
-
 
     #
     #
@@ -675,12 +671,10 @@ def main():
         statsFontSize = fontCalFunc(wallsizeX / 1.5, wallsizeY / 1.5)
     arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, fontName), statsFontSize)
 
-
     # asks user for wall label
     LED_wall_label_text = input('\n What label do you want on the raster? ')
     if LED_wall_label_text == '':
         LED_wall_label_text = 'led_test_pattern'
-
 
     # updates variables for image resolution text overlays
     W, H, = wallsizeX, wallsizeY
@@ -703,7 +697,6 @@ def main():
         text_size, wLLsz(wallsize), fill='white', font=arialFontStats,
     )
 
-
     # updates variables for title overlays
     w, h = getSizeOfText(LED_wall_label_text, arialTitleFont_LED)
     text_size = CalcCenter(W, H, w, h)
@@ -714,10 +707,6 @@ def main():
     # draws Label text
     draw.text(text_size, LED_wall_label_text, fill='white', font=arialTitleFont_LED)
 
-
-    # TODO: combine multiple grids onto the same image
-
-
     # saves image file
     wallIm.save(f'{LED_wall_label_text}.png')
 
@@ -726,6 +715,6 @@ def main():
         '\n END OF PROGRAM \n \n \n')
     return wallIm   
 
+
 if __name__ == "__main__":
     main()  # Call main() if this module is run, but not when imported.
-

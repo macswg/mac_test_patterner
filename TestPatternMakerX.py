@@ -18,11 +18,17 @@ logging.disable(logging.CRITICAL)
 logging.debug(' Start of program')
 
 # TODO: Add background color option
-# TODO: Add x,y overlay label to top corner
 
 int_input_validation = raster_maker.int_input_validation
 makeBorder = raster_maker.makeBorder
 wLLsz = raster_maker.wLLsz
+# getSizeOfText = raster_maker.getSizeOfText
+
+
+def getSizeOfText(text, font):
+    w, h = draw.textsize(text, font)
+    return w, h
+
 
 # This defines a variables that will be updated later
 fontsFolder = 'FONT_FOLDER'
@@ -43,6 +49,7 @@ bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
 
 b = makeBorder(bg)
 
+
 def addRaster(x, y):
     xOffset = int_input_validation(
         '\n' + 'What is the x offset of the raster from top left? ' +
@@ -59,29 +66,19 @@ def addRaster(x, y):
     """
     draw = ImageDraw.Draw(bg)
     draw.fontmode = 'L'
-    xyOffsetTextSize = int(width * 0.03) 
+    xyOffsetTextSize = int(width * 0.023) 
     # fest_res_text = wLLsz(overlay.size)
 
     arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
-    # define vars for function that draws resolution text overlay
-    # W, H, = scale_w, scale_h
-    # w, h = getSizeOfText(fest_res_text, arialFont)
-    # text_size = CalcCenter(W, H, w, h)
-    # text_x, text_y = text_size
-    # text_y = text_y + h
-    # text_size = text_x, text_y
-
     # draws x, y offset text
-    text = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
-    offsetText = ((xOffset + 1), yOffset)
-    draw.text(offsetText, text, fill='white', font=arialFont)
-
-
-
-    x += (width + xOffset)
-    y += (height + yOffset)
-    return bg, x, y
+    textTL = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
+    offsetTextxy = ((xOffset + 3), yOffset)
+    draw.text(offsetTextxy, textTL, fill='white', font=arialFont)
+    
+    x = xOffset + width
+    y = yOffset + height
+    return bg, x, y, xyOffsetTextSize
 
 
 # bg = addRaster()
@@ -89,13 +86,23 @@ addRas = 'continue'
 minX, minY = 0, 0
 
 while True:
-    bg, xOffset, yOffset = addRaster(minX, minY)
+    bg, xOffset, yOffset, xyOffsetTextSize = addRaster(minX, minY)
     addRas = input('Do you want to add another raster? y for yes; enter to quit.')
-    minX += xOffset
-    minY += yOffset
+    minX = xOffset
+    minY = yOffset
     if addRas == '':
         break
 
+bgW, bgH = bg.size
+textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
+# xyOffsetTextSize = int(bgW * 0.023)
+arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+
+draw = ImageDraw.Draw(bg)
+draw.fontmode = 'L'
+bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
+bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
+draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
 
 # raster1 = raster_maker.main()
 # bg.paste(raster_maker.main(), (10, 10))
@@ -104,5 +111,3 @@ while True:
 
 # saves image file
 bg.save(f'{pixelSpaceName}.png')
-
-
