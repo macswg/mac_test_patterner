@@ -61,26 +61,42 @@ def color_input_validation():
 
 
 def makeBorder(image, color=whiteBorderColor):
-        # border color
-        # borderColor = ImageColor.getcolor('white', 'RGBA')
-        try:
-            width, height = image.size
-            # top and bottom borders
-            logging.debug('Start drawing top and bottom borders')
-            for x in range(width):
-                for y in range(1):
-                    image.putpixel((x, y), color)
-                for y in range(height - 1, height):
-                    image.putpixel((x, y), color)
-            # left and right borders
-            logging.debug('Start drawing left and right borders')
-            for y in range(height):
-                for x in range(1):
-                    image.putpixel((x, y), color)
-                for x in range(width - 1, width):
-                    image.putpixel((x, y), color)
-        except ValueError:
-            print('There is a problem with the image called to the function')
+    # border color
+    # borderColor = ImageColor.getcolor('white', 'RGBA')
+    try:
+        width, height = image.size
+        # top and bottom borders
+        logging.debug('Start drawing top and bottom borders')
+        for x in range(width):
+            for y in range(1):
+                image.putpixel((x, y), color)
+            for y in range(height - 1, height):
+                image.putpixel((x, y), color)
+        # left and right borders
+        logging.debug('Start drawing left and right borders')
+        for y in range(height):
+            for x in range(1):
+                image.putpixel((x, y), color)
+            for x in range(width - 1, width):
+                image.putpixel((x, y), color)
+    except ValueError:
+        print('There is a problem with the image called to the function')
+
+
+# This function converts list to string for use in draw.text lines
+def wLLsz(i):
+    j = i
+    i = ' x '.join(str(e) for e in j)
+    return i
+
+
+def fontCalFunc(i=72, j=72):
+    x = int(min(i, j) / 2 * 0.6)
+    return x
+
+# def getSizeOfText(text, font):
+#     w, h = draw.textsize(text, font)
+#     return w, h
 
 
 def main():
@@ -88,8 +104,6 @@ def main():
     # Variables to update to offset index numbers (1 is normal):
     i_offset_0 = 1
     i_offset_1 = 1
-
-
 
     """ Checks to  see if there is a row of half panels and 
         returns True if there is a row of half panels.
@@ -99,7 +113,8 @@ def main():
 
     def half_tile_check(i):
         error1 = (
-            '\nThat is not a valid panel height\nEither use a whole number or add .5 for half panel\n'
+            '''\nThat is not a valid panel height\nEither use a whole 
+            number or add .5 for half panel\n'''
         )
         while True:
             try:
@@ -133,19 +148,19 @@ def main():
             x = False
         return x
 
-    def fontCalFunc(i=72, j=72):
-        x = int(min(i, j) / 2 * 0.6)
-        return x
+    # def fontCalFunc(i=72, j=72):
+    #     x = int(min(i, j) / 2 * 0.6)
+    #     return x
 
     def getSizeOfText(text, font):
         w, h = draw.textsize(text, font)
         return w, h
 
-    # This function converts list to string for use in draw.text lines
-    def wLLsz(i):
-        j = i
-        i = ' x '.join(str(e) for e in j)
-        return i
+    # # This function converts list to string for use in draw.text lines
+    # def wLLsz(i):
+    #     j = i
+    #     i = ' x '.join(str(e) for e in j)
+    #     return i
 
     # W H = larger raster / w h = smaller raster to center
     def CalcCenter(W, H, w, h):
@@ -197,10 +212,9 @@ def main():
     of the raster 
     """
     def half_tile_top_bool(i=False):
-        i = input(
-            """\n Do you want to move the half-tiles to the top of the raster?
-        [Type y for yes -- Leave blank to keep half-tiles at the bottom of the raster.] """
-        )
+        i = input('''\n Do you want to move the half-tiles to the top of 
+        the raster? [Type y for yes -- Leave blank to keep half-tiles at the 
+        bottom of the raster.] ''')
         if i == 'y':
             i = True
         else:
@@ -209,10 +223,8 @@ def main():
 
     # Festival input pattern
     def fest_pattern_bool(i=False):
-        i = input(
-            """Do you want to create a Festival Test Pattern with no LED outlines?
-        [Type y for festival pattern -- Leave blank to draw LED panel outlines.] """
-        )
+        i = input('''Do you want to create a Festival Test Pattern with no LED outlines?
+            [Type y for festival pattern -- Leave blank to draw LED panel outlines.] ''')
         if i == 'y':
             i = True
         else:
@@ -384,14 +396,14 @@ def main():
     b = int(b * 0.7)
     bgColor2 = r, g, b, a
 
-    logging.debug('Start for loop to copy panel images (second color) ' + str(bgColor2))
+    logging.debug('''Start for loop to copy panel images 
+                    (second color) ''' + str(bgColor2))
 
     ledIm2 = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor2)
     logging.debug('size of ledIm2 is: ' + str(ledIm2.size))
 
     # Call make border function to add the border to LED color panel 2
     makeBorder(ledIm2, altBorderColor)
-
 
     # Ask for user input of wall dimensions
     logging.debug('Start tiling panels onto wall pattern')

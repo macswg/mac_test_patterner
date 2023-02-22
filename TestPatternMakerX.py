@@ -19,17 +19,27 @@ logging.debug(' Start of program')
 
 # TODO: Add background color option
 # TODO: Add x,y overlay label to top corner
-# TODO: Add raster 1 px border (not option in PGM but handy variable in script)
 
 int_input_validation = raster_maker.int_input_validation
 makeBorder = raster_maker.makeBorder
+wLLsz = raster_maker.wLLsz
+
+# This defines a variables that will be updated later
+fontsFolder = 'FONT_FOLDER'
+
+# Checks os and updates font name
+if sys.platform.startswith('darwin'):
+    fontName = 'Arial.ttf'
+elif sys.platform.startswith('win'):
+    fontName = 'arial.ttf'
 
 pixelSpaceWidth = int_input_validation(
     '\n' + 'Enter the width of the pixel space: ')
 pixelSpaceHeight = int_input_validation(
     '\n' + 'Enter the height of the pixel space: ')
 pixelSpaceName = input('What is the pixelspace label? ')
-bg = Image.new('RGBA', (1920, 1080), (25, 25, 25))
+bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
+bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
 
 b = makeBorder(bg)
 
@@ -42,6 +52,33 @@ def addRaster(x, y):
     overlay = raster_maker.main()
     bg.paste(overlay, (xOffset, yOffset))
     width, height = overlay.size
+    
+    """
+    TEXT OVERLAY on FEST PATTERN -- These lines draw resolution and
+    label of festival test pattern.
+    """
+    draw = ImageDraw.Draw(bg)
+    draw.fontmode = 'L'
+    xyOffsetTextSize = int(width * 0.03) 
+    # fest_res_text = wLLsz(overlay.size)
+
+    arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+
+    # define vars for function that draws resolution text overlay
+    # W, H, = scale_w, scale_h
+    # w, h = getSizeOfText(fest_res_text, arialFont)
+    # text_size = CalcCenter(W, H, w, h)
+    # text_x, text_y = text_size
+    # text_y = text_y + h
+    # text_size = text_x, text_y
+
+    # draws x, y offset text
+    text = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
+    offsetText = ((xOffset + 1), yOffset)
+    draw.text(offsetText, text, fill='white', font=arialFont)
+
+
+
     x += (width + xOffset)
     y += (height + yOffset)
     return bg, x, y
