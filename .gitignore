@@ -25,3 +25,6 @@ archive
 
 # Ignore cache files
 __*
+
+# Ignore JSON config folder
+JSON*
