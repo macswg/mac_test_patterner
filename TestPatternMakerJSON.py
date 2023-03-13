@@ -57,10 +57,11 @@ with open(Jfile, 'r', encoding='utf-8') as Jf:
 
 ### JSON data
 rasterNum = 1  # starts at raster number 1
-rasterName = json_data[0][1][f'raster{rasterNum}']  # raster var to update for next raster
+psNum = 0
+rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
 
 
-def addRaster():
+def addRaster(rasterName):
     xOffset = rasterName['x offset']
     yOffset = rasterName['y offset']
     # xOffset = int_input_validation(
@@ -91,46 +92,45 @@ def addRaster():
     return bg, xyOffsetTextSize
 
 
-# write image files:
-psJ = json_data[0][0]['pixelspace'] 
+for i in range(2):
+    try:
+        psJ = json_data[psNum][0]['pixelspace'] 
+        pixelSpaceWidth = psJ['size'][0]
+        pixelSpaceHeight = psJ['size'][1]
+        pixelSpaceName = psJ['name']
+        bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
+        bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
+        b = makeBorder(bg)
 
-pixelSpaceWidth = psJ['size'][0]
-pixelSpaceHeight = psJ['size'][1]
-pixelSpaceName = psJ['name']
-bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
-bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
-b = makeBorder(bg)
+        ### updating this while loop for JSON usage
+        for i in json_data:
+            for j in i[1]:
+                bg, xyOffsetTextSize = addRaster(rasterName=rasterName)
+                try:
+                    rasterNum += 1
+                    rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
+                except KeyError:
+                    break
 
-### updating this while loop for JSON usage
-for i in json_data:
-    for j in i[1]:
-        bg, xyOffsetTextSize = addRaster()
-        try:
-            rasterNum += 1
-            rasterName = json_data[0][1][f'raster{rasterNum}']  # raster var to update for next raster
-        except KeyError:
-            break
-    
-    
+        bgW, bgH = bg.size
+        textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
+        # xyOffsetTextSize = int(bgW * 0.023)
+        arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
-bgW, bgH = bg.size
-textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
-# xyOffsetTextSize = int(bgW * 0.023)
-arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+        draw = ImageDraw.Draw(bg)
+        draw.fontmode = 'L'
+        bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
+        bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
+        draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
 
-draw = ImageDraw.Draw(bg)
-draw.fontmode = 'L'
-bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
-bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
-draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
+        # saves image file
+        imageDir = './images'
+        fileName = f'{pixelSpaceName}.png'
+        bg.save(os.path.join(imageDir, fileName))
+        # bg.save(f'{pixelSpaceName}.png')
+        psNum += 1
+        rasterNum = 1
+        rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
+    except IndexError:
+        break
 
-# raster1 = raster_maker_json.main()
-# bg.paste(raster_maker_json.main(), (10, 10))
-
-# overlay.paste(bg, (10, 10))
-
-# saves image file
-imageDir = './images'
-fileName = f'{pixelSpaceName}.png'
-bg.save(os.path.join(imageDir, fileName))
-# bg.save(f'{pixelSpaceName}.png')
