@@ -1,0 +1,64 @@
+[
+    [
+        {
+            "pixelspace": {
+                "name": "Lolla Argentina Sidescreens",
+                "size": [
+                    3840,
+                    2160
+                ]
+            }
+        },
+        {
+            "raster1": {
+                "x offset": 0,
+                "y offset": 0,
+                "festival pattern": true,
+                "width": 2990,
+                "height": 2160,
+                "background color": "darkblue",
+                "raster label": "Sidescreens"
+            }
+        }
+    ],
+    [
+        {
+            "pixelspace": {
+                "name": "Lolla Argentina USC",
+                "size": [
+                    3840,
+                    2160
+                ]
+            }
+        },
+        {
+            "raster1": {
+                "x offset": 0,
+                "y offset": 0,
+                "festival pattern": true,
+                "width": 2304,
+                "height": 1280,
+                "background color": "darkgreen",
+                "raster label": "USC"
+            },
+            "raster2": {
+                "x offset": 0,
+                "y offset": 1290,
+                "festival pattern": true,
+                "width": 1536,
+                "height": 256,
+                "background color": "darkviolet",
+                "raster label": "USG"
+            },
+            "raster3": {
+                "x offset": 1546,
+                "y offset": 1290,
+                "festival pattern": true,
+                "width": 720,
+                "height": 216,
+                "background color": "darkviolet",
+                "raster label": "DSW"
+            }
+        }
+    ]
+]
