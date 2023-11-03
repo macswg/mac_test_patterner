@@ -182,6 +182,8 @@ def main():
         fontName = 'Arial.ttf'
     elif sys.platform.startswith('win'):
         fontName = 'arial.ttf'
+    elif sys.platform.startswith('linux'):
+        fontName = 'Ubuntu-B.ttf'
 
     # whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
     # altBorderColor = ImageColor.getcolor('gray', 'RGBA')

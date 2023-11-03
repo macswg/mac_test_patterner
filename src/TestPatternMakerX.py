@@ -38,6 +38,8 @@ if sys.platform.startswith('darwin'):
     fontName = 'Arial.ttf'
 elif sys.platform.startswith('win'):
     fontName = 'arial.ttf'
+elif sys.platform.startswith('linux'):
+    fontName = 'Ubuntu-B.ttf'
 
 pixelSpaceWidth = int_input_validation(
     '\n' + 'Enter the width of the pixel space: ')
