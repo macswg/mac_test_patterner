@@ -2,6 +2,9 @@
 
 This is a pixel map generator for creating custom .png images with pixel-accurate test patterns for LED walls and projection surfaces.
 
+*Note - "SgLedTestPatern_v9_1.py" is depreciated and will eventually be removed. The functionality is integrated into "TestPatternMakerX.py" 
+
+
 As of Jan 2022 the software is command line interface only and because it is python code, it requires python to be installed. 
 
 The program is writted in Python 3.9
