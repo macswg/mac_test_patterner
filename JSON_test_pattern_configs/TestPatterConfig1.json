@@ -2,7 +2,7 @@
     [
         {
             "pixelspace": {
-                "name": "Lolla Argentina Sidescreens",
+                "name": "TOP_content_raster_101",
                 "size": [
                     3840,
                     2160
@@ -11,53 +11,165 @@
         },
         {
             "raster1": {
-                "x offset": 0,
-                "y offset": 0,
-                "festival pattern": true,
-                "width": 2990,
-                "height": 2160,
+                "x offset": 2638,
+                "y offset": 10,
+                "festival pattern": false,
+                "width": 624,
+                "height": 768,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
                 "background color": "darkblue",
-                "raster label": "Sidescreens"
-            }
-        }
-    ],
-    [
-        {
-            "pixelspace": {
-                "name": "Lolla Argentina USC",
-                "size": [
-                    3840,
-                    2160
-                ]
-            }
-        },
-        {
-            "raster1": {
-                "x offset": 0,
-                "y offset": 0,
-                "festival pattern": true,
-                "width": 2304,
-                "height": 1280,
-                "background color": "darkgreen",
-                "raster label": "USC"
+                "raster label": "Sidescreen SL"
             },
             "raster2": {
-                "x offset": 0,
-                "y offset": 1290,
+                "x offset": 10,
+                "y offset": 10,
                 "festival pattern": true,
-                "width": 1536,
-                "height": 256,
-                "background color": "darkviolet",
-                "raster label": "USG"
+                "width": 624,
+                "height": 768,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkred",
+                "raster label": "Sidescreen SR"
             },
             "raster3": {
-                "x offset": 1546,
-                "y offset": 1290,
+                "x offset": 2092,
+                "y offset": 10,
                 "festival pattern": true,
-                "width": 720,
-                "height": 216,
-                "background color": "darkviolet",
-                "raster label": "DSW"
+                "width": 480,
+                "height": 768,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "midnightblue",
+                "raster label": "USL"
+            },
+            "raster4": {
+                "x offset": 1180,
+                "y offset": 10,
+                "festival pattern": true,
+                "width": 912,
+                "height": 768,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkslateblue",
+                "raster label": "USC"
+            },
+            "raster5": {
+                "x offset": 700,
+                "y offset": 10,
+                "festival pattern": true,
+                "width": 480,
+                "height": 768,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "maroon",
+                "raster label": "USR"
+            },
+            "raster6": {
+                "x offset": 10,
+                "y offset": 1180,
+                "festival pattern": true,
+                "width": 1920,
+                "height": 144,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkred",
+                "raster label": "riser"
+            },
+            "raster7": {
+                "x offset": 10,
+                "y offset": 900,
+                "festival pattern": true,
+                "width": 768,
+                "height": 240,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkred",
+                "raster label": "flown SR"
+            },
+            "raster8": {
+                "x offset": 1162,
+                "y offset": 900,
+                "festival pattern": true,
+                "width": 768,
+                "height": 240,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkslateblue",
+                "raster label": "flown SL"
+            },
+            "raster9": {
+                "x offset": 850,
+                "y offset": 900,
+                "festival pattern": true,
+                "width": 240,
+                "height": 240,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "dimgray",
+                "raster label": "LOGO"
+            },
+            "raster13": {
+                "x offset": 1532,
+                "y offset": 884,
+                "festival pattern": true,
+                "width": 432,
+                "height": 288,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkslateblue",
+                "raster label": "flown mid DSL"
+            },
+            "raster14": {
+                "x offset": 2750,
+                "y offset": 10,
+                "festival pattern": true,
+                "width": 1080,
+                "height": 1920,
+                "tile width": 48,
+                "tile height": 48,
+                "panels wide": 18,
+                "panels high": 7,
+                "half tile top": "n",
+                "background color": "darkmagenta",
+                "raster label": "220 IMAG"
+            }
+        },
+        {
+            "tilesize": {
+                "tilename": "S9",
+                "tilewidth": 48,
+                "tileheight": 48
             }
         }
     ]

@@ -27,6 +27,15 @@ altBorderColor = ImageColor.getcolor('gray', 'RGBA')
 
 imageDir = './images'
 
+# ---- Import parameters from JSON
+Jfile = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
+with open(Jfile, 'r', encoding='utf-8') as Jf:
+    json_data = json.load(Jf)
+
+festBoolJson = json_data[0][1]['raster1']['festival pattern']
+# rasterJson = json_data[1]['raster1']  # raster var to update for next raster
+
+
 # Function to validate resolution input
 def int_validation(x: int):
     while True:
@@ -43,19 +52,19 @@ def int_validation(x: int):
     return value
 
 
-def int_input_validation(prompt):
-    while True:
-        try:
-            value = int(input(prompt))
-        except ValueError:
-            print('You need to enter an non-negative integer (a whole number) ')
-            # better try again ... return to the start of the loop
-            continue
-        else:
-            # input successfully parsed!
-            # we're ready to exit the loop.
-            break
-    return value
+# def int_input_validation(prompt):
+#     while True:
+#         try:
+#             value = int(prompt)
+#         except ValueError:
+#             print('You need to enter an non-negative integer (a whole number) ')
+#             # better try again ... return to the start of the loop
+#             continue
+#         else:
+#             # input successfully parsed!
+#             # we're ready to exit the loop.
+#             break
+#     return value
 
 
 # Function to validate the background color
@@ -63,23 +72,6 @@ def color_validation(colorName):
     while True:
         try:
             color = colorName
-            rgbCol = ImageColor.getcolor(str(color), 'RGBA')
-        except ValueError:
-            print('That is not a color I recognize, please try again. ')
-            # better try again ... return to the start of the loop
-            continue
-        else:
-            # input succesfully parsed!
-            # ready to exit the loop.
-            break
-    logging.debug('color value = ' + str(color))
-    return rgbCol
-
-
-def color_input_validation():
-    while True:
-        try:
-            color = input('\n' + 'What is your background color? ')
             rgbCol = ImageColor.getcolor(str(color), 'RGBA')
         except ValueError:
             print('That is not a color I recognize, please try again. ')
@@ -131,17 +123,8 @@ def fontCalFunc(i=72, j=72):
 #     w, h = draw.textsize(text, font)
 #     return w, h
 
-#######
-####### Import parameters from JSON
-Jfile = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
-with open(Jfile, 'r', encoding='utf-8') as Jf:
-    json_data = json.load(Jf)
 
-festBoolJson = json_data[0][1]['raster1']['festival pattern']
-# rasterJson = json_data[1]['raster1']  # raster var to update for next raster
-
-
-def main(rasterJson):
+def make_raster(rasterJson):
     # TODO: There is a bug here on the vertical offset that needs work.
     # Variables to update to offset index numbers (1 is normal):
     i_offset_0 = 1
@@ -160,7 +143,7 @@ def main(rasterJson):
         )
         while True:
             try:
-                TILECOUNT = input(i)
+                TILECOUNT = i
                 j = str(TILECOUNT).split('.')
                 if j[1] == '5':
                     x = True
@@ -412,15 +395,13 @@ def main(rasterJson):
         exit()
 
     # Ask for user input of LED tile dimensions and bg color
-    tileResWidth = int_input_validation(
-        '\n' + 'What is the tile width (horizontal resolution)? ')
-    tileResHeight = int_input_validation(
-        '\n' + 'What is the tile height (vertical resolution)? ')
+    tileResWidth = int_validation(rasterJson['tile width'])
+    tileResHeight = int_validation(rasterJson['tile height'])
 
     """ color is asked for in the color_input_validation function because
         I don't know how else to verify value is correct
     """
-    bgColor = color_input_validation()
+    bgColor = color_validation(rasterJson['background color'])
 
     # Log prints out summary of values captured for debugging's sake.
     logging.debug(
@@ -455,11 +436,8 @@ def main(rasterJson):
 
     # Ask for user input of wall dimensions
     logging.debug('Start tiling panels onto wall pattern')
-    wallPanelWidth = int_input_validation(
-        '\n' + 'How many tiles wide do you need the pattern? ')
-    half_tile_bool, wallPanelHeight = half_tile_check(
-        '\n' + '''How many tiles high do you need the pattern? 
-        (half-tiles are ok) ''')
+    wallPanelWidth = int_validation(rasterJson['panels wide'])
+    half_tile_bool, wallPanelHeight = half_tile_check(rasterJson['panels high'])
 
     if half_tile_bool is True:
         logging.debug('half tile is TRUE')
@@ -720,7 +698,7 @@ def main(rasterJson):
     arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, fontName), statsFontSize)
 
     # asks user for wall label
-    LED_wall_label_text = input('\n What label do you want on the raster? ')
+    LED_wall_label_text = rasterJson['raster label']
     if LED_wall_label_text == '':
         LED_wall_label_text = 'led_test_pattern'
 
@@ -766,4 +744,4 @@ def main(rasterJson):
 
 
 if __name__ == "__main__":
-    main()  # Call main() if this module is run, but not when imported.
+    make_raster()  # Call main() if this module is run, but not when imported.

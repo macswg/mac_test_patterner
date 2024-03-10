@@ -15,14 +15,13 @@ logging.basicConfig(
     format=' %(asctime)s - %(levelname)s - %(message)s',
 )
 # disables logging when uncommented
-logging.disable(logging.CRITICAL)
+# logging.disable(logging.CRITICAL)
 logging.debug(' Start of program')
 
 
-int_input_validation = raster_maker_json.int_input_validation
+# int_input_validation = raster_maker_json.int_input_validation
 makeBorder = raster_maker_json.makeBorder
 wLLsz = raster_maker_json.wLLsz
-# getSizeOfText = raster_maker_json.getSizeOfText
 
 
 def getSizeOfText(text, font):
@@ -40,39 +39,29 @@ elif sys.platform.startswith('win'):
     fontName = 'arial.ttf'
 
 
-#######
-####### Import parameters from JSON
+# ---- Import parameters from JSON
 Jfile = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
 with open(Jfile, 'r', encoding='utf-8') as Jf:
     json_data = json.load(Jf)
 
-# psJ = json_data[0][0]['pixelspace'] 
 
-# pixelSpaceWidth = psJ['size'][0]
-# pixelSpaceHeight = psJ['size'][1]
-# pixelSpaceName = psJ['name']
-# bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
-# bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
-# b = makeBorder(bg)
-
-### JSON data
+# --- JSON data
 rasterNum = 1  # starts at raster number 1
 psNum = 0
 rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
 
 
+def cal_font_size():
+    pass
+
+
 def addRaster(rasterName):
     xOffset = rasterName['x offset']
     yOffset = rasterName['y offset']
-    # xOffset = int_input_validation(
-    #     '\n' + 'What is the x offset of the raster from top left? ' +
-    #     '\n' + f'Minimum offset to prevent overlap is {x, y} ')
-    # yOffset = int_input_validation(
-    #     '\n' + 'What is the y offset of the raster from top left? ')
-    overlay = raster_maker_json.main(rasterName)
+    overlay = raster_maker_json.make_raster(rasterName)
     bg.paste(overlay, (xOffset, yOffset))
     width, height = overlay.size
-    
+
     """
     TEXT OVERLAY on FEST PATTERN -- These lines draw resolution and
     label of festival test pattern.
@@ -92,45 +81,47 @@ def addRaster(rasterName):
     return bg, xyOffsetTextSize
 
 
-for i in range(2):
-    try:
-        psJ = json_data[psNum][0]['pixelspace'] 
-        pixelSpaceWidth = psJ['size'][0]
-        pixelSpaceHeight = psJ['size'][1]
-        pixelSpaceName = psJ['name']
-        bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
-        bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
-        b = makeBorder(bg)
+# ------- main code block ------- #
 
-        ### updating this while loop for JSON usage
-        for i in json_data:
-            for j in i[1]:
-                bg, xyOffsetTextSize = addRaster(rasterName=rasterName)
-                try:
-                    rasterNum += 1
-                    rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
-                except KeyError:
-                    break
+if __name__ == "__main__":
+    for i in json_data:
+        try:
+            psJ = json_data[psNum][0]['pixelspace'] 
+            pixelSpaceWidth = psJ['size'][0]
+            pixelSpaceHeight = psJ['size'][1]
+            pixelSpaceName = psJ['name']
+            bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
+            bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
+            b = makeBorder(bg)
 
-        bgW, bgH = bg.size
-        textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
-        # xyOffsetTextSize = int(bgW * 0.023)
-        arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+            # updating this while loop for JSON usage
+            for i in json_data:
+                for j in i[1]:
+                    bg, xyOffsetTextSize = addRaster(rasterName=rasterName)
+                    try:
+                        rasterNum += 1
+                        rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
+                    except KeyError:
+                        break
 
-        draw = ImageDraw.Draw(bg)
-        draw.fontmode = 'L'
-        bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
-        bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
-        draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
+            bgW, bgH = bg.size
+            textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
+            # xyOffsetTextSize = int(bgW * 0.023)
+            arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
-        # saves image file
-        imageDir = './images'
-        fileName = f'{pixelSpaceName}.png'
-        bg.save(os.path.join(imageDir, fileName))
-        # bg.save(f'{pixelSpaceName}.png')
-        psNum += 1
-        rasterNum = 1
-        rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
-    except IndexError:
-        break
+            draw = ImageDraw.Draw(bg)
+            draw.fontmode = 'L'
+            bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
+            bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
+            draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
 
+            # saves image file
+            imageDir = './images'
+            fileName = f'{pixelSpaceName}.png'
+            bg.save(os.path.join(imageDir, fileName))
+            # bg.save(f'{pixelSpaceName}.png')
+            psNum += 1
+            rasterNum = 1
+            rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
+        except IndexError:
+            break
