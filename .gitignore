@@ -13,6 +13,7 @@
 # Ignore env directory
 env/
 venv/
+secret/
 
 # Ignore mac files
 ._*
