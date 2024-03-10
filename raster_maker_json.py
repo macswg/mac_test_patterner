@@ -32,7 +32,7 @@ Jfile = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
 with open(Jfile, 'r', encoding='utf-8') as Jf:
     json_data = json.load(Jf)
 
-festBoolJson = json_data[0][1]['raster1']['festival pattern']
+# festBoolJson = json_data[0][1]['raster1']['festival pattern']
 # rasterJson = json_data[1]['raster1']  # raster var to update for next raster
 
 
@@ -256,8 +256,7 @@ def make_raster(rasterJson):
             i = False
         return i
 
-
-    fest_pattern = festBoolJson
+    fest_pattern = rasterJson['festival pattern']
     # fest_pattern = fest_pattern_bool()
 
     # FESTIVAL TEST PATTERN -- IF SECTION

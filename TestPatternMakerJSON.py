@@ -51,8 +51,12 @@ psNum = 0
 rasterName = json_data[psNum][1][f'raster{rasterNum}']  # raster var to update for next raster
 
 
-def cal_font_size():
+def cal_best_font_size(w, h):
+    # area = int(w) * int(h)
+    # # smaller_var = area / 16
+    # new_size = area * 0.00015
     pass
+    # return new_size
 
 
 def addRaster(rasterName):
@@ -68,7 +72,10 @@ def addRaster(rasterName):
     """
     draw = ImageDraw.Draw(bg)
     draw.fontmode = 'L'
-    xyOffsetTextSize = int(width * 0.023) 
+    # xyOffsetTextSize = int(width * 0.023)
+    # print(width, height)
+    # print(cal_best_font_size(width, height))
+    xyOffsetTextSize = int(20)
     # fest_res_text = wLLsz(overlay.size)
 
     arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)

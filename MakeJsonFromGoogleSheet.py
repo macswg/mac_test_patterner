@@ -3,6 +3,8 @@
 
 import json
 from PIL import ImageColor
+import pandas as pd
+import pygsheets
 
 
 # Function to validate the background color
@@ -35,7 +37,20 @@ def color_validation(colorName):
 # ---- example data format for LED pattern:
 
 
-file = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
+# file = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
+
+
+# ------- Main Code Block -------
+
+client = pygsheets.authorize(
+        service_file=(
+            'secret/credentials_python-int-2023-2e89fbfc8ab6.json'))
+    wks = GShtOpen(
+        client=client, gSheet='IP addresses py101', wrksheet='IP RESERVATIONS')
+
+    # import worksheet as pandas dataframe
+    mch_Df = wks.get_as_df(start='A2')  # the machines dataframe
+
 
 # Pixel Space 1 items
 pixelspace = {'pixelspace': {'name': 'TOP_content_raster_101', 
