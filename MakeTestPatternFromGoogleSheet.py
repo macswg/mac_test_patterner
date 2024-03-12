@@ -1,12 +1,10 @@
-# JSONScratch.py
-# practicing JSON for python
-
 import logging
+import raster_maker_google
 import json
 from PIL import ImageColor
 import pandas as pd
 import pygsheets
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 
 # Logging info
@@ -46,7 +44,18 @@ def g_sht_open(client: str, gSheet: str, wrksheet: str) -> pygsheets.Worksheet:
     return wks
 
 
-def dataframe_to_dict(df: pd.DataFrame)
+# Function to convert DataFrame to list of dictionaries
+def dataframe_to_list_of_dicts(df: pd.DataFrame) -> List[Dict[str, Any]]:
+    """
+    Convert each row of a pandas DataFrame into a dictionary, and collect them in a list.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to convert.
+
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries, each representing a row from the DataFrame.
+    """
+    return df.to_dict('records')
 
 
 file = r'./JSON_test_pattern_configs/TestPtrnGoogleSheet_1.json'
@@ -58,28 +67,32 @@ if __name__ == "__main__":
             service_file=(
                 'secret/credentials_python-int-2023-2e89fbfc8ab6.json'))
     wks = g_sht_open(
-        client=client, gSheet='Pixel Maps TOP 2024', wrksheet='ps1-contentmap')
+        client=client, gSheet='Pixel Maps TOP 2024', wrksheet='rasters')
 
     # import worksheet as pandas dataframe
     df = wks.get_as_df(start='A2')
-    logging.info(f'DF row 1 = {df[1]}')
+    logging.info(f'DF row 1 = {df}')
 
-    
+    dict_list = dataframe_to_list_of_dicts(df)
+    for d in dict_list:
+        logging.info(f'dict_list = {d}')
 
 
-    ps1 = [pixelspace, rasterDict, tileSize]
-    jsonData = [ps1]
 
-    # check jsonData for errors:
-    rasterNum = 1
-    colorsToCheck = jsonData[0][1]
-    for i in colorsToCheck:
-        try:
-            color_validation(colorsToCheck[f'raster{rasterNum}']['background color'])
-            rasterNum += 1
-        except KeyError:
-            break
+    # ------- output dict_list to JSON -------
+    # jsonData = [dict_list]
 
-    # write jsonData to file
-    with open(file, 'w', encoding='utf-8') as f:
-        json.dump(jsonData, f, indent=4)
+    # # check jsonData for errors:
+    # rasterNum = 1
+    # colorsToCheck = jsonData[0][1]
+    # for i in colorsToCheck:
+    #     try:
+    #         color_validation(colorsToCheck[f'raster{rasterNum}']['background color'])
+    #         rasterNum += 1
+    #     except KeyError:
+    #         break
+
+    # # write jsonData to file
+    # with open(file, 'w', encoding='utf-8') as f:
+    #     json.dump(jsonData, f, indent=4)
+    # -----------------------------------------
