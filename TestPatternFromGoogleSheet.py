@@ -53,24 +53,17 @@ def color_validation(colorName):
         else:
             # input succesfully parsed!
             # ready to exit the loop.
-            # break
             return rgbCol
 
 
 def makeBorder(image, color=whiteBorderColor):
-    # border color
-    # borderColor = ImageColor.getcolor('white', 'RGBA')
     try:
         width, height = image.size
-        # top and bottom borders
-        # logging.debug('Start drawing top and bottom borders')
         for x in range(width):
             for y in range(1):
                 image.putpixel((x, y), color)
             for y in range(height - 1, height):
                 image.putpixel((x, y), color)
-        # left and right borders
-        # logging.debug('Start drawing left and right borders')
         for y in range(height):
             for x in range(1):
                 image.putpixel((x, y), color)
@@ -123,11 +116,7 @@ def addRaster(rasterDict: Dict):
     """
     draw = ImageDraw.Draw(bg)
     draw.fontmode = 'L'
-    # xyOffsetTextSize = int(width * 0.023)
-    # print(width, height)
-    # print(cal_best_font_size(width, height))
     xyOffsetTextSize = int(20)
-    # fest_res_text = wLLsz(overlay.size)
 
     arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
@@ -139,32 +128,21 @@ def addRaster(rasterDict: Dict):
     return bg, xyOffsetTextSize
 
 
-# def save_pixelspace(raster_dict_list: list):
-#     pixelSpaceWidth = df['ps width'][1]
-#     pixelSpaceHeight = df['ps height'][1]
-#     pixelSpaceName = df['ps label'][1]
-#     bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
-#     bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
-#     b = makeBorder(bg)
-#     # if raster_dict_list['ps label'] == d['ps label']:
-#     for i in raster_dict_list:
-#         bg, xyOffsetTextSize = addRaster(i)
+def column_to_list(df: pd.DataFrame, column_name: str) -> List:
+    """Convert a specified column of a pandas DataFrame into a list.
 
-#     bgW, bgH = bg.size
-#     textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
-#     arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+    Args:
+        df (pd.DataFrame): The pandas DataFrame containing the column.
+        column_name (str): The name of the column to convert into a list.
 
-#     draw = ImageDraw.Draw(bg)
-#     draw.fontmode = 'L'
-#     bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
-#     bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
-#     draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
-
-#     # saves image file
-#     imageDir = './images'
-#     fileName = f'{pixelSpaceName}.png'
-#     bg.save(os.path.join(imageDir, fileName))
-    # bg.save(f'{pixelSpaceName}.png')
+    Returns:
+        List: A list containing the values of the specified column.
+    """
+    # Ensure the column exists in the DataFrame
+    if column_name in df.columns:
+        return df[column_name].tolist()
+    else:
+        raise ValueError(f"Column '{column_name}' not found in DataFrame")
 
 
 # ------- Main Code Block -------
@@ -182,36 +160,39 @@ if __name__ == "__main__":
     df = wks_rstr.get_as_df(start='A2')
     df_ps = wks_ps.get_as_df(start='A2')
 
-    # logging.info(f'DF row 1 = {df}')
+    ps_list = column_to_list(df=df_ps, column_name='ps label')
 
-    ps_dict_list = dataframe_to_list_of_dicts(df_ps)
-    raster_dict_list = dataframe_to_list_of_dicts(df)
+    # loop through filtered datasets
+    for i in ps_list:
+        rows_filt_ps = df[df['ps label'] == i]
+        raster_dict_list = dataframe_to_list_of_dicts(rows_filt_ps)
 
-    pixelSpaceWidth = df['ps width'][1]
-    pixelSpaceHeight = df['ps height'][1]
-    pixelSpaceName = df['ps label'][1]
-    bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
-    bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
-    b = makeBorder(bg)
-    # if raster_dict_list['ps label'] == d['ps label']:
-    for i in raster_dict_list:
-        bg, xyOffsetTextSize = addRaster(i)
+        pixelSpaceWidth_row = rows_filt_ps['ps width']
+        pixelSpaceWidth = pixelSpaceWidth_row.iloc[0]
+        pixelSpaceHeight_row = rows_filt_ps['ps height']
+        pixelSpaceHeight = pixelSpaceHeight_row.iloc[0]
+        pixelSpaceName_row = rows_filt_ps['ps label']
+        pixelSpaceName = pixelSpaceName_row.iloc[0]
+        bgBackgroundColor = ImageColor.getcolor('black', 'RGBA')  # Background color
+        bg = Image.new('RGBA', (pixelSpaceWidth, pixelSpaceHeight), bgBackgroundColor)
+        # b = makeBorder(bg)
+        for i in raster_dict_list:
+            bg, xyOffsetTextSize = addRaster(i)
 
-    bgW, bgH = bg.size
-    textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
-    arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+        bgW, bgH = bg.size
+        textBR = '(' + str(bgW) + ', ' + str(bgH) + ')'
+        arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
-    draw = ImageDraw.Draw(bg)
-    draw.fontmode = 'L'
-    bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
-    bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
-    draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
+        draw = ImageDraw.Draw(bg)
+        draw.fontmode = 'L'
+        bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
+        bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
+        draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
 
-    # saves image file
-    imageDir = './images'
-    fileName = f'{pixelSpaceName}.png'
-    bg.save(os.path.join(imageDir, fileName))
-        # bg.save(f'{pixelSpaceName}.png')
+        # saves image file
+        imageDir = './images'
+        fileName = f'{pixelSpaceName}.png'
+        bg.save(os.path.join(imageDir, fileName))
 
     # ------- output dict_list to JSON -------
     # jsonData = [dict_list]
