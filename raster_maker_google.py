@@ -6,21 +6,21 @@ rasters inside a pixelspace (e.g. 1920x1080).
 """
 
 # logging
-import logging
+# import logging
 # Import pillow image module and other stuff
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import os
 import sys
-import json
+# import json
 
-logging.basicConfig(
-    filename='LedTestPatternLog.txt',
-    level=logging.DEBUG,
-    format=' %(asctime)s - %(levelname)s - %(message)s',
-)
+# logging.basicConfig(
+#     filename='LedTestPatternLog.txt',
+#     level=logging.DEBUG,
+#     format=' %(asctime)s - %(levelname)s - %(message)s',
+# )
 # disables logging when uncommented
-logging.disable(logging.CRITICAL)
-logging.debug(' Start of program')
+# logging.disable(logging.CRITICAL)
+# logging.debug(' Start of program')
 
 whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
 altBorderColor = ImageColor.getcolor('gray', 'RGBA')
@@ -28,12 +28,11 @@ altBorderColor = ImageColor.getcolor('gray', 'RGBA')
 imageDir = './images'
 
 # ---- Import parameters from JSON
-Jfile = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
-with open(Jfile, 'r', encoding='utf-8') as Jf:
-    json_data = json.load(Jf)
+# Jfile = r'./JSON_test_pattern_configs/TestPatterConfig1.json'
+# with open(Jfile, 'r', encoding='utf-8') as Jf:
+#     json_data = json.load(Jf)
 
 # festBoolJson = json_data[0][1]['raster1']['festival pattern']
-# rasterJson = json_data[1]['raster1']  # raster var to update for next raster
 
 
 # Function to validate resolution input
@@ -81,7 +80,7 @@ def color_validation(colorName):
             # input succesfully parsed!
             # ready to exit the loop.
             break
-    logging.debug('color value = ' + str(color))
+    # logging.debug('color value = ' + str(color))
     return rgbCol
 
 
@@ -91,14 +90,14 @@ def makeBorder(image, color=whiteBorderColor):
     try:
         width, height = image.size
         # top and bottom borders
-        logging.debug('Start drawing top and bottom borders')
+        # logging.debug('Start drawing top and bottom borders')
         for x in range(width):
             for y in range(1):
                 image.putpixel((x, y), color)
             for y in range(height - 1, height):
                 image.putpixel((x, y), color)
         # left and right borders
-        logging.debug('Start drawing left and right borders')
+        # logging.debug('Start drawing left and right borders')
         for y in range(height):
             for x in range(1):
                 image.putpixel((x, y), color)
@@ -124,7 +123,7 @@ def fontCalFunc(i=72, j=72):
 #     return w, h
 
 
-def make_raster(rasterJson):
+def make_raster(rasterDict: dict):
     # TODO: There is a bug here on the vertical offset that needs work.
     # Variables to update to offset index numbers (1 is normal):
     i_offset_0 = 1
@@ -248,23 +247,21 @@ def make_raster(rasterJson):
 
     # Festival input pattern
     def fest_pattern_bool(i=False):
-        i = input('''Do you want to create a Festival Test Pattern with no LED outlines?
-            [Type y for festival pattern -- Leave blank to draw LED panel outlines.] ''')
-        if i == 'y':
+        if i == 'TRUE':
             i = True
         else:
             i = False
         return i
 
-    fest_pattern = rasterJson['festival pattern']
+    fest_pattern = fest_pattern_bool(rasterDict['festival pattern'])
     # fest_pattern = fest_pattern_bool()
 
     # FESTIVAL TEST PATTERN -- IF SECTION
 
     if fest_pattern is True:
-        fest_wall_width = int_validation(rasterJson['width'])
-        fest_wall_height = int_validation(rasterJson['height'])
-        fest_bgColor = color_validation(rasterJson['background color'])
+        fest_wall_width = int_validation(rasterDict['width'])
+        fest_wall_height = int_validation(rasterDict['height'])
+        fest_bgColor = color_validation(rasterDict['background color'])
         # fest_wall_width = int_input_validation(
         #     '\n' + 'Enter the horizontal resolution of the test pattern: '
         # )
@@ -328,7 +325,7 @@ def make_raster(rasterJson):
         fest_res_text = wLLsz(fest_wallsize)
 
         # Asks user to enter a label
-        fest_wall_label_text = rasterJson['raster label']
+        fest_wall_label_text = rasterDict['raster label']
         # fest_wall_label_text = input('What label do you want? ')
         if fest_wall_label_text == '':
             fest_wall_label_text = 'fest_test_pattern'
@@ -394,52 +391,52 @@ def make_raster(rasterJson):
         exit()
 
     # Ask for user input of LED tile dimensions and bg color
-    tileResWidth = int_validation(rasterJson['tile width'])
-    tileResHeight = int_validation(rasterJson['tile height'])
+    tileResWidth = int_validation(rasterDict['tile width'])
+    tileResHeight = int_validation(rasterDict['tile height'])
 
     """ color is asked for in the color_input_validation function because
         I don't know how else to verify value is correct
     """
-    bgColor = color_validation(rasterJson['background color'])
+    bgColor = color_validation(rasterDict['background color'])
 
     # Log prints out summary of values captured for debugging's sake.
-    logging.debug(
-        '\n' + 'Values returned to the program: ' + '\n'
-        'tileResWidth is ' + str(tileResWidth) + '\n'
-        'tileResHeight is ' + str(tileResHeight) + '\n'
-        'color value is ' + str(bgColor) + '\n')
+    # logging.debug(
+        # '\n' + 'Values returned to the program: ' + '\n'
+        # 'tileResWidth is ' + str(tileResWidth) + '\n'
+        # 'tileResHeight is ' + str(tileResHeight) + '\n'
+        # 'color value is ' + str(bgColor) + '\n')
 
     # Create new image of LED panel color 1
-    logging.debug('Start of Create New Image ')
+    # logging.debug('Start of Create New Image ')
     ledIm = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor)
 
     # Call make border function to add the border
     makeBorder(ledIm, altBorderColor)
 
     # Create new image of LED panels color 2
-    logging.debug('lightens color by some percentage')
+    # logging.debug('lightens color by some percentage')
     r, g, b, a = bgColor
     r = int(r * 0.7)
     g = int(g * 0.7)
     b = int(b * 0.7)
     bgColor2 = r, g, b, a
 
-    logging.debug('''Start for loop to copy panel images 
-                    (second color) ''' + str(bgColor2))
+    # logging.debug('''Start for loop to copy panel images 
+                    # (second color) ''' + str(bgColor2))
 
     ledIm2 = Image.new('RGBA', (tileResWidth, tileResHeight), bgColor2)
-    logging.debug('size of ledIm2 is: ' + str(ledIm2.size))
+    # logging.debug('size of ledIm2 is: ' + str(ledIm2.size))
 
     # Call make border function to add the border to LED color panel 2
     makeBorder(ledIm2, altBorderColor)
 
     # Ask for user input of wall dimensions
-    logging.debug('Start tiling panels onto wall pattern')
-    wallPanelWidth = int_validation(rasterJson['panels wide'])
-    half_tile_bool, wallPanelHeight = half_tile_check(rasterJson['panels high'])
+    # logging.debug('Start tiling panels onto wall pattern')
+    wallPanelWidth = int_validation(rasterDict['panels wide'])
+    half_tile_bool, wallPanelHeight = half_tile_check(rasterDict['panels high'])
 
     if half_tile_bool is True:
-        logging.debug('half tile is TRUE')
+        # logging.debug('half tile is TRUE')
         ledIm3_half = Image.new(
             'RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor)
         ledIm4_half = Image.new(
@@ -451,9 +448,10 @@ def make_raster(rasterJson):
         """
         half_tile_top = half_tile_top_bool()
     else:
-        logging.debug('half tile is false')
+        pass
+        # logging.debug('half tile is false')
 
-    logging.debug('Program continues after half_tile_bool')
+    # logging.debug('Program continues after half_tile_bool')
 
     # Create new image at size of wall
     if half_tile_bool is True:
@@ -468,11 +466,11 @@ def make_raster(rasterJson):
         wallIm = Image.new('RGBA', (
             wallPanelWidth * tileResWidth, wallPanelHeight * tileResHeight))
 
-    logging.debug('wallIm size = ' + str(wallIm.size))
-    logging.debug('wallPanelWidth = ' + str(wallPanelWidth))
-    logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
-    logging.debug('tileResWidth = ' + str(tileResWidth))
-    logging.debug('tileResHeight = ' + str(tileResHeight))
+    # logging.debug('wallIm size = ' + str(wallIm.size))
+    # logging.debug('wallPanelWidth = ' + str(wallPanelWidth))
+    # logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
+    # logging.debug('tileResWidth = ' + str(tileResWidth))
+    # logging.debug('tileResHeight = ' + str(tileResHeight))
 
     # noqa: E302
 
@@ -481,21 +479,21 @@ def make_raster(rasterJson):
     wallPanelWidth2, wallPanelHeight2 = wallIm.size
     tileResWidth, tileResHeight = ledIm.size
 
-    logging.debug('wallPanelWidth = ' + str(wallPanelWidth))
-    logging.debug('tileResWidth = ' + str(tileResWidth))
-    logging.debug(
-        'Start for loop to copy panel images with alternating colors')
-    logging.debug(
-        'wallPanelHeight begin loop at 213 = ' + str(wallPanelHeight))
-    logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
+    # logging.debug('wallPanelWidth = ' + str(wallPanelWidth))
+    # logging.debug('tileResWidth = ' + str(tileResWidth))
+    # logging.debug(
+        # 'Start for loop to copy panel images with alternating colors')
+    # logging.debug(
+    #     'wallPanelHeight begin loop at 213 = ' + str(wallPanelHeight))
+    # logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
     # Variables defined to start drawing full-panels at the top of the wall:
     top_start = 0
     top_start_alt = tileResHeight
 
-    logging.debug(
-        '\n' + 'top_start variable defined' + 
-        str(top_start) + str(top_start_alt))
+    # logging.debug(
+    #     '\n' + 'top_start variable defined' + 
+    #     str(top_start) + str(top_start_alt))
 
     # Updates start of tile loops by updating top start variables:
     if half_tile_bool is True:
@@ -503,9 +501,9 @@ def make_raster(rasterJson):
             top_start = 0 - wallPanelHeight2
             top_start_alt = tileResHeight - wallPanelHeight2
 
-    logging.debug(
-        '\n' + 'top_start variable defined again' + 
-        str(top_start) + str(top_start_alt) + '\n')
+    # logging.debug(
+    #     '\n' + 'top_start variable defined again' + 
+    #     str(top_start) + str(top_start_alt) + '\n')
 
     for left in range(0, wallPanelWidth2, tileResWidth * 2):
         for top in range(top_start, wallPanelHeight2, tileResHeight * 2):
@@ -520,8 +518,8 @@ def make_raster(rasterJson):
         for topAlt in range(top_start, wallPanelHeight2, tileResHeight * 2):
             wallIm.paste(ledIm2, (leftAlt, topAlt))
 
-    logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
-    logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
+    # logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
+    # logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
     #
     #
@@ -539,18 +537,18 @@ def make_raster(rasterJson):
         true_toggle = True
         top_start_half_panel = wallPanelHeight2 - (int(tileResHeight / 2))
 
-    logging.debug('For loop A copying led panels to wall complete')
-    logging.debug('tileResWidth 141 = ' + str(tileResWidth))
-    logging.debug('tileResHeight 142 = ' + str(tileResHeight))
-    logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
-    logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
+    # logging.debug('For loop A copying led panels to wall complete')
+    # logging.debug('tileResWidth 141 = ' + str(tileResWidth))
+    # logging.debug('tileResHeight 142 = ' + str(tileResHeight))
+    # logging.debug('wallPanelHeight = ' + str(wallPanelHeight))
+    # logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
     # creating variables to loop later - also centering the text
     draw = ImageDraw.Draw(wallIm)
     draw.fontmode = 'L'
     W, H, half_H = (tileResWidth, tileResHeight, (tileResHeight / 2))
 
-    logging.debug('W = ' + str(W) + 'H = ' + str(H) + 'half_H = ' + str(half_H))
+    # logging.debug('W = ' + str(W) + 'H = ' + str(H) + 'half_H = ' + str(half_H))
 
     # calculate appropriate font size for panel resolution
     fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
@@ -592,7 +590,7 @@ def make_raster(rasterJson):
 
     # loop that draws text across tiles and counts up panel indexNums
     while True:
-        logging.debug('Start while true')
+        # logging.debug('Start while true')
         loop_counter1 = 0
 
         # original while statement
@@ -602,7 +600,7 @@ def make_raster(rasterJson):
 
             loop_counter1 += 1
 
-            logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
+            # logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
 
             adjusted_x_coord_for_text = (
                 (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
@@ -634,14 +632,14 @@ def make_raster(rasterJson):
             # adds to index number
             indexNums[1] += 1
 
-            logging.debug('indexNums update 370 ' + str(indexNums))
+            # logging.debug('indexNums update 370 ' + str(indexNums))
 
             # calculates the width and height of text to be drawn
             w, h = draw.textsize(iNc(indexNums), font=arialFont)
 
             # This if statements draws the half-tile numbers
             if half_tile_bool is True:
-                logging.debug('Begin drawing half-tile text ')
+                # logging.debug('Begin drawing half-tile text ')
 
                 # TODO: Some way to only draw if tile is half width?
                 if indexNums[1] == wallPanelHeight + 1:
@@ -653,20 +651,20 @@ def make_raster(rasterJson):
                         iNc(indexNums),
                         fill='gray',
                         font=arialFont)
-                logging.debug('END IF statement LOWER drawing half-tile text ' + str(indexNums))
-                logging.debug('iNc function output = ' + str(iNc(indexNums)))
-                logging.debug(
-                    'adjusted_x_coord_for_text_halfpanel = ' + str(adjusted_x_coord_for_text_halfpanel)
-                )
-                logging.debug(
-                    'adjusted_y_coord_for_text_halfpanel = ' + str(adjusted_y_coord_for_text_halfpanel)
-                )
-                logging.debug('adjusted_x_coord_for_text = ' + str(adjusted_x_coord_for_text))
-                logging.debug('adjusted_y_coord_for_text = ' + str(adjusted_y_coord_for_text) + '\n')
+                # logging.debug('END IF statement LOWER drawing half-tile text ' + str(indexNums))
+                # logging.debug('iNc function output = ' + str(iNc(indexNums)))
+                # logging.debug(
+                #     'adjusted_x_coord_for_text_halfpanel = ' + str(adjusted_x_coord_for_text_halfpanel)
+                # )
+                # logging.debug(
+                #     'adjusted_y_coord_for_text_halfpanel = ' + str(adjusted_y_coord_for_text_halfpanel)
+                # )
+                # logging.debug('adjusted_x_coord_for_text = ' + str(adjusted_x_coord_for_text))
+                # logging.debug('adjusted_y_coord_for_text = ' + str(adjusted_y_coord_for_text) + '\n')
 
             # original if statement
             if indexNums[1] == wallPanelHeight + 1:
-                logging.debug('Start if indexNums A. ' + str(indexNums))
+                # logging.debug('Start if indexNums A. ' + str(indexNums))
 
                 # these are necessary to prevent infinite loop
                 indexNums[0] += 1
@@ -677,7 +675,7 @@ def make_raster(rasterJson):
 
                 # calculates the width and height of text to be drawn
                 w, h = draw.textsize(iNc(indexNums), font=arialFont)
-                logging.debug('draw.textsize w value = ' + str(w) + '-- h value = ' + str(h))
+                # logging.debug('draw.textsize w value = ' + str(w) + '-- h value = ' + str(h))
 
         break
 
@@ -697,7 +695,7 @@ def make_raster(rasterJson):
     arialFontStats = ImageFont.truetype(os.path.join(fontsFolder, fontName), statsFontSize)
 
     # asks user for wall label
-    LED_wall_label_text = rasterJson['raster label']
+    LED_wall_label_text = rasterDict['raster label']
     if LED_wall_label_text == '':
         LED_wall_label_text = 'led_test_pattern'
 
@@ -736,9 +734,9 @@ def make_raster(rasterJson):
     fileName = f'{LED_wall_label_text}.png'
     wallIm.save(os.path.join(imageDir, fileName))
 
-    logging.debug(
-        'wallPanelWidth value is: ' + str(wallPanelWidth) + 
-        '\n END OF PROGRAM \n \n \n')
+    # logging.debug(
+    #     'wallPanelWidth value is: ' + str(wallPanelWidth) + 
+    #     '\n END OF PROGRAM \n \n \n')
     return wallIm   
 
 
