@@ -150,21 +150,32 @@ if __name__ == "__main__":
     client = pygsheets.authorize(
             service_file=(
                 'secret/credentials_python-int-2023-2e89fbfc8ab6.json'))
+    
+    g_sht_name = 'Sean - Pixel Maps iHeart Fiesta 2025'
     wks_rstr = g_sht_open(
-        client=client, gSheet='Pixel Maps TOP 2024', wrksheet='rasters')
+        client=client, gSheet=g_sht_name, wrksheet='rasters')
 
     wks_ps = g_sht_open(
-        client=client, gSheet='Pixel Maps TOP 2024', wrksheet='pixelspaces')
+        client=client, gSheet=g_sht_name, wrksheet='pixelspaces')
 
     # import worksheet as pandas dataframe
     df = wks_rstr.get_as_df(start='A2')
     df_ps = wks_ps.get_as_df(start='A2')
 
     ps_list = column_to_list(df=df_ps, column_name='ps label')
+    
+    # Filter out empty strings and None values
+    ps_list = [ps for ps in ps_list if ps and str(ps).strip()]
 
     # loop through filtered datasets
     for i in ps_list:
         rows_filt_ps = df[df['ps label'] == i]
+        
+        # Check if the filtered DataFrame is empty
+        if rows_filt_ps.empty:
+            print(f"Warning: No data found for ps label '{i}'. Skipping...")
+            continue
+            
         raster_dict_list = dataframe_to_list_of_dicts(rows_filt_ps)
 
         pixelSpaceWidth_row = rows_filt_ps['ps width']

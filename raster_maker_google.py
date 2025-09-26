@@ -140,28 +140,32 @@ def make_raster(rasterDict: dict):
             '''\nThat is not a valid panel height\nEither use a whole 
             number or add .5 for half panel\n'''
         )
-        while True:
-            try:
-                TILECOUNT = i
-                j = str(TILECOUNT).split('.')
-                if j[1] == '5':
-                    x = True
-                    i = j[0]
-                    break
-                elif int(j[1]) <= 4:
-                    print(error1)
-                    continue
-                elif int(j[1]) >= 6:
-                    print(error1)
-                    continue
-            except ValueError:
-                print('Enter a whole number or a float value (i.e. x or x.5)')
-                continue
-            except IndexError:
+        try:
+            TILECOUNT = float(i)
+            j = str(TILECOUNT).split('.')
+            if len(j) == 1:  # Whole number case (no decimal)
                 x = False
-                i = TILECOUNT
-                break
-        return x, int(i)
+                return x, int(TILECOUNT)
+            elif j[1] == '0':  # Whole number case (e.g., 4.0)
+                x = False
+                return x, int(TILECOUNT)
+            elif j[1] == '5':  # Half panel case
+                x = True
+                return x, int(j[0])
+            elif int(j[1]) <= 4:
+                print(error1)
+                raise ValueError(f"Invalid panel height: {TILECOUNT}")
+            elif int(j[1]) >= 6:
+                print(error1)
+                raise ValueError(f"Invalid panel height: {TILECOUNT}")
+        except ValueError as e:
+            if "could not convert" in str(e):
+                print('Enter a whole number or a float value (i.e. x or x.5)')
+            print(f"Error with panel height value: {i}")
+            raise ValueError(f"Invalid panel height: {i}")
+        except IndexError:
+            x = False
+            return x, int(TILECOUNT)
 
     # Function to adjust every other panel to get the alternating grid colors.
     def even_is_true(i):
@@ -232,18 +236,14 @@ def make_raster(rasterDict: dict):
     #     except ValueError:
     #         print('There is a problem with the image called to the function')
 
-    """ Function to return true if user selects half-panels to be on top 
+    """ Function to return true if half-panels should be on top 
     of the raster 
     """
-    def half_tile_top_bool(i=False):
-        i = input('''\n Do you want to move the half-tiles to the top of 
-        the raster? [Type y for yes -- Leave blank to keep half-tiles at the 
-        bottom of the raster.] ''')
-        if i == 'y':
-            i = True
+    def half_tile_top_bool(half_tile_top_value):
+        if half_tile_top_value and str(half_tile_top_value).lower() in ['y', 'yes', 'true', '1']:
+            return True
         else:
-            i = False
-        return i
+            return False
 
     # Festival input pattern
     def fest_pattern_bool(i=False):
@@ -443,10 +443,9 @@ def make_raster(rasterDict: dict):
             'RGBA', (tileResWidth, int(tileResHeight / 2)), bgColor2)
         makeBorder(ledIm3_half, altBorderColor)
         makeBorder(ledIm4_half, altBorderColor)
-        """ Asks user if they want half-tiles on the top of the raster
-        (leave blank for bottom)
+        """ Gets half-tile position from rasterDict
         """
-        half_tile_top = half_tile_top_bool()
+        half_tile_top = half_tile_top_bool(rasterDict.get('half tile top', 'n'))
     else:
         pass
         # logging.debug('half tile is false')
