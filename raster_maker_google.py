@@ -236,14 +236,17 @@ def make_raster(rasterDict: dict):
     #     except ValueError:
     #         print('There is a problem with the image called to the function')
 
-    """ Function to return true if half-panels should be on top 
-    of the raster 
+    """ Function to parse half-tile position value
+    Returns the row number after which to place the half tile
+    0 = top, 99 = bottom, 1 = after 1st row, 2 = after 2nd row, etc.
     """
-    def half_tile_top_bool(half_tile_top_value):
-        if half_tile_top_value and str(half_tile_top_value).lower() in ['y', 'yes', 'true', '1']:
-            return True
-        else:
-            return False
+    def parse_half_tile_position(half_tile_position_value):
+        try:
+            position = int(half_tile_position_value)
+            return position
+        except (ValueError, TypeError):
+            # Default to bottom (99) if invalid
+            return 99
 
     # Festival input pattern
     def fest_pattern_bool(i=False):
@@ -321,7 +324,7 @@ def make_raster(rasterDict: dict):
         label of festival test pattern.
         """
         draw = ImageDraw.Draw(festOverlaysIm)
-        draw.fontmode = 'L'
+        # Remove fontmode to use PIL's default high-quality antialiasing
         fest_res_text = wLLsz(fest_wallsize)
 
         # Asks user to enter a label
@@ -444,8 +447,10 @@ def make_raster(rasterDict: dict):
         makeBorder(ledIm3_half, altBorderColor)
         makeBorder(ledIm4_half, altBorderColor)
         """ Gets half-tile position from rasterDict
+        0 = top, 99 = bottom, 1-98 = after that row number
         """
-        half_tile_top = half_tile_top_bool(rasterDict.get('half tile top', 'n'))
+        half_tile_position = parse_half_tile_position(
+            rasterDict.get('half tile top', '99'))
     else:
         pass
         # logging.debug('half tile is false')
@@ -461,6 +466,17 @@ def make_raster(rasterDict: dict):
                 (wallPanelHeight * tileResHeight) + int(tileResHeight / 2),
             ),
         )
+        # Calculate where the half tile row should be inserted
+        if half_tile_position == 0:
+            # Top position
+            half_tile_y_position = 0
+        elif half_tile_position >= 99:
+            # Bottom position
+            half_tile_y_position = wallPanelHeight * tileResHeight
+        else:
+            # After specified row
+            # (1 = after first row, 2 = after second row, etc.)
+            half_tile_y_position = half_tile_position * tileResHeight
     else:
         wallIm = Image.new('RGBA', (
             wallPanelWidth * tileResWidth, wallPanelHeight * tileResHeight))
@@ -486,36 +502,77 @@ def make_raster(rasterDict: dict):
     #     'wallPanelHeight begin loop at 213 = ' + str(wallPanelHeight))
     # logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
 
-    # Variables defined to start drawing full-panels at the top of the wall:
-    top_start = 0
-    top_start_alt = tileResHeight
+    # Draw full tiles with checkerboard pattern
+    # If half tile is in middle, we need to draw tiles in sections
 
-    # logging.debug(
-    #     '\n' + 'top_start variable defined' + 
-    #     str(top_start) + str(top_start_alt))
+    if (half_tile_bool is True and half_tile_position > 0 and
+            half_tile_position < 99):
+        # Half tile is in the middle - draw in two sections
+        half_tile_row_height = int(tileResHeight / 2)
 
-    # Updates start of tile loops by updating top start variables:
-    if half_tile_bool is True:
-        if half_tile_top is True:
-            top_start = 0 - wallPanelHeight2
-            top_start_alt = tileResHeight - wallPanelHeight2
+        # Section 1: Draw tiles ABOVE the half tile
+        # (rows 0 to half_tile_position)
+        for row in range(half_tile_position):
+            y_pos = row * tileResHeight
+            for col in range(wallPanelWidth):
+                x_pos = col * tileResWidth
+                # Determine which color based on checkerboard pattern
+                if (row + col) % 2 == 0:
+                    wallIm.paste(ledIm, (x_pos, y_pos))
+                else:
+                    wallIm.paste(ledIm2, (x_pos, y_pos))
 
-    # logging.debug(
-    #     '\n' + 'top_start variable defined again' + 
-    #     str(top_start) + str(top_start_alt) + '\n')
+        # Section 2: Draw tiles BELOW the half tile (remaining rows)
+        # These start after the half tile row
+        for row in range(half_tile_position, wallPanelHeight):
+            y_pos = (row * tileResHeight) + half_tile_row_height
+            for col in range(wallPanelWidth):
+                x_pos = col * tileResWidth
+                # Determine which color based on checkerboard pattern
+                # Add 1 to row since these tiles are visually one row below
+                # the half tile (which acts as row 'half_tile_position')
+                pattern_row = row + 1
+                if (pattern_row + col) % 2 == 0:
+                    wallIm.paste(ledIm, (x_pos, y_pos))
+                else:
+                    wallIm.paste(ledIm2, (x_pos, y_pos))
 
-    for left in range(0, wallPanelWidth2, tileResWidth * 2):
-        for top in range(top_start, wallPanelHeight2, tileResHeight * 2):
-            wallIm.paste(ledIm, (left, top))
-    for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
-        for topAlt in range(top_start_alt, wallPanelHeight2, tileResHeight * 2):
-            wallIm.paste(ledIm, (leftAlt, topAlt))
-    for left in range(0, wallPanelWidth2, tileResWidth * 2):
-        for top in range(top_start_alt, wallPanelHeight2, tileResHeight * 2):
-            wallIm.paste(ledIm2, (left, top))
-    for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
-        for topAlt in range(top_start, wallPanelHeight2, tileResHeight * 2):
-            wallIm.paste(ledIm2, (leftAlt, topAlt))
+    elif half_tile_bool is True and half_tile_position == 0:
+        # Half tile on top - shift all full tiles down
+        half_tile_row_height = int(tileResHeight / 2)
+        for row in range(wallPanelHeight):
+            y_pos = (row * tileResHeight) + half_tile_row_height
+            for col in range(wallPanelWidth):
+                x_pos = col * tileResWidth
+                # Determine which color based on checkerboard pattern
+                # Add 1 to row since these tiles are visually one row below
+                # the half tile at row 0
+                pattern_row = row + 1
+                if (pattern_row + col) % 2 == 0:
+                    wallIm.paste(ledIm, (x_pos, y_pos))
+                else:
+                    wallIm.paste(ledIm2, (x_pos, y_pos))
+
+    else:
+        # Half tile on bottom or no half tile - draw normally
+        top_start = 0
+        top_start_alt = tileResHeight
+
+        for left in range(0, wallPanelWidth2, tileResWidth * 2):
+            for top in range(top_start, wallPanelHeight2, tileResHeight * 2):
+                wallIm.paste(ledIm, (left, top))
+        for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
+            for topAlt in range(top_start_alt, wallPanelHeight2,
+                                tileResHeight * 2):
+                wallIm.paste(ledIm, (leftAlt, topAlt))
+        for left in range(0, wallPanelWidth2, tileResWidth * 2):
+            for top in range(top_start_alt, wallPanelHeight2,
+                             tileResHeight * 2):
+                wallIm.paste(ledIm2, (left, top))
+        for leftAlt in range(tileResWidth, wallPanelWidth2, tileResWidth * 2):
+            for topAlt in range(top_start, wallPanelHeight2,
+                                tileResHeight * 2):
+                wallIm.paste(ledIm2, (leftAlt, topAlt))
 
     # logging.debug('wallPanelHeight begin loop at 431 = ' + str(wallPanelHeight))
     # logging.debug('wallPanelHeight = ' + str(wallPanelHeight2))
@@ -527,14 +584,32 @@ def make_raster(rasterDict: dict):
     """
 
     if half_tile_bool is True:
+        # Draw half tiles with alternating colors across the row
+        # The half tile row should alternate from the row above it
+        for col in range(wallPanelWidth):
+            x_pos = col * tileResWidth
+            y_pos = half_tile_y_position
 
-        """ If half-tiles on the top, this (and the following if statement) 
-        changes where half-tiles are drawn
-        """
-        
-        # default condition -- half-tile on bottom
-        true_toggle = True
-        top_start_half_panel = wallPanelHeight2 - (int(tileResHeight / 2))
+            # Determine which color based on checkerboard pattern
+            # The row number for pattern purposes depends on position
+            if half_tile_position == 0:
+                # Top position - row 0 in the pattern
+                pattern_row = 0
+            elif half_tile_position >= 99:
+                # Bottom position - after all full rows
+                # Pattern continues from wallPanelHeight
+                pattern_row = wallPanelHeight
+            else:
+                # Middle position - after row N
+                # This is effectively row N in the pattern
+                # (which will alternate from row N-1 above it)
+                pattern_row = half_tile_position
+
+            # Checkerboard: if (row + col) is even, use color 1, else color 2
+            if (pattern_row + col) % 2 == 0:
+                wallIm.paste(ledIm3_half, (x_pos, y_pos))
+            else:
+                wallIm.paste(ledIm4_half, (x_pos, y_pos))
 
     # logging.debug('For loop A copying led panels to wall complete')
     # logging.debug('tileResWidth 141 = ' + str(tileResWidth))
@@ -544,14 +619,10 @@ def make_raster(rasterDict: dict):
 
     # creating variables to loop later - also centering the text
     draw = ImageDraw.Draw(wallIm)
-    draw.fontmode = 'L'
+    # Remove fontmode to use PIL's default high-quality antialiasing
     W, H, half_H = (tileResWidth, tileResHeight, (tileResHeight / 2))
 
     # logging.debug('W = ' + str(W) + 'H = ' + str(H) + 'half_H = ' + str(half_H))
-
-    # calculate appropriate font size for panel resolution
-    fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
-    arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), fontCal)
 
     """ these variables are defined outside the loops
         so they can be manipulated
@@ -565,6 +636,10 @@ def make_raster(rasterDict: dict):
     def iNc(i):
         i = ', '.join(str(e) for e in indexNums)
         return i
+
+    # calculate appropriate font size for panel resolution
+    fontCal = int(min(tileResHeight, tileResWidth) / 2 * 0.6)
+    arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), fontCal)
 
     """ calculates the width and height of text to be drawn
         function below added later -- can eventually replace
@@ -599,32 +674,71 @@ def make_raster(rasterDict: dict):
 
             loop_counter1 += 1
 
+            # Draw half tile text at the start if position is 0
+            if (half_tile_bool is True and half_tile_position == 0 and
+                    indexNums[1] == 1):
+                # Calculate position for half tile text at top
+                adjusted_x_coord_for_text_halfpanel = (
+                    (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
+                adjusted_y_coord_for_text_halfpanel = (
+                    half_tile_y_position + ((half_H - h) / 2))
+
+                # Create special index for half tile at row 1 (display starts at 1)
+                half_tile_indexNums = [indexNums[0], 1]
+                half_tile_text = ', '.join(
+                    str(e) for e in half_tile_indexNums)
+                # calculates the width and height of text
+                w_half, h_half = draw.textsize(half_tile_text, font=arialFont)
+                # draws text on the half panel at top
+                draw.text(
+                    (adjusted_x_coord_for_text_halfpanel,
+                     adjusted_y_coord_for_text_halfpanel,),
+                    half_tile_text,
+                    fill='gray',
+                    font=arialFont)
+
             # logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
 
             adjusted_x_coord_for_text = (
                 (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
             adjusted_y_coord_for_text = (
                 (H - h) / 2) + (indexNums[1] - i_offset_1) * tileResHeight
-            # this if statement adjust the y variable above to move text up
+
+            # Determine display row number (may differ from indexNums[1])
+            display_row_num = indexNums[1]
+
+            # Adjust Y position and row numbering based on half tile location
             if half_tile_bool is True:
-                if half_tile_top is True:
-                    adjusted_y_coord_for_text -= tileResHeight / 4
-                    if indexNums[1] >= 2:
-                        adjusted_y_coord_for_text -= tileResHeight / 4
+                if half_tile_position == 0:
+                    # Half tile on top - shift all text down
+                    adjusted_y_coord_for_text += tileResHeight / 2
+                    # Row numbers increment (half tile is row 1, so full tiles are 2, 3, 4...)
+                    display_row_num = indexNums[1] + 1
+                elif (half_tile_position < 99 and
+                      indexNums[1] > half_tile_position):
+                    # Half tile in middle - shift text below it down
+                    adjusted_y_coord_for_text += tileResHeight / 2
+                    # Row numbers increment after the half tile
+                    display_row_num = indexNums[1] + 1
+
             # adds more text to half panels if they exist
             if half_tile_bool is True:
                 adjusted_x_coord_for_text_halfpanel = (
                     (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
                 adjusted_y_coord_for_text_halfpanel = (
-                    (half_H - h) / 2) + (indexNums[1]) * (tileResHeight)
+                    half_tile_y_position + ((half_H - h) / 2))
+
+            # Create display text with adjusted row number
+            display_indexNums = [indexNums[0], display_row_num]
+            display_text = ', '.join(str(e) for e in display_indexNums)
 
             # calculates the width and height of text to be drawn
-            w, h = draw.textsize(iNc(indexNums), font=arialFont)
+            w, h = draw.textsize(display_text, font=arialFont)
 
             # draws text
             draw.text(
                 (adjusted_x_coord_for_text, adjusted_y_coord_for_text),
-                iNc(indexNums),
+                display_text,
                 fill='gray',
                 font=arialFont)
 
@@ -633,21 +747,39 @@ def make_raster(rasterDict: dict):
 
             # logging.debug('indexNums update 370 ' + str(indexNums))
 
-            # calculates the width and height of text to be drawn
-            w, h = draw.textsize(iNc(indexNums), font=arialFont)
-
             # This if statements draws the half-tile numbers
             if half_tile_bool is True:
                 # logging.debug('Begin drawing half-tile text ')
 
-                # TODO: Some way to only draw if tile is half width?
-                if indexNums[1] == wallPanelHeight + 1:
-                    if half_tile_top is True:
-                        adjusted_y_coord_for_text_halfpanel -= tileResHeight / 4
+                # Determine which row should have half-tile text
+                should_draw_half_tile_text = False
+                half_tile_display_row = None
+
+                # Position 0 is handled earlier in the loop
+                if (half_tile_position > 0 and half_tile_position < 99 and
+                        indexNums[1] == half_tile_position + 1):
+                    # Half tile is in the middle after specified row
+                    should_draw_half_tile_text = True
+                    half_tile_display_row = half_tile_position + 1
+                elif (half_tile_position >= 99 and
+                      indexNums[1] == wallPanelHeight + 1):
+                    # Half tile is on bottom
+                    should_draw_half_tile_text = True
+                    half_tile_display_row = wallPanelHeight + 1
+
+                if (should_draw_half_tile_text and
+                        half_tile_display_row is not None):
+                    # Create special index for half tile
+                    half_tile_indexNums = [indexNums[0], half_tile_display_row]
+                    half_tile_text = ', '.join(
+                        str(e) for e in half_tile_indexNums)
+                    # calculates the width and height of text
+                    w, h = draw.textsize(half_tile_text, font=arialFont)
                     # draws text on the half panel
                     draw.text(
-                        (adjusted_x_coord_for_text_halfpanel, adjusted_y_coord_for_text_halfpanel,),
-                        iNc(indexNums),
+                        (adjusted_x_coord_for_text_halfpanel,
+                         adjusted_y_coord_for_text_halfpanel,),
+                        half_tile_text,
                         fill='gray',
                         font=arialFont)
                 # logging.debug('END IF statement LOWER drawing half-tile text ' + str(indexNums))

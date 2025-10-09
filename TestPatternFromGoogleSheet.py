@@ -115,15 +115,51 @@ def addRaster(rasterDict: Dict):
     label of festival test pattern.
     """
     draw = ImageDraw.Draw(bg)
-    draw.fontmode = 'L'
+    # Remove fontmode setting to use PIL's default high-quality antialiasing
+    
+    # Keep font at size 20 - it's already the perfect size
+    # Only scale down if text would be too wide for the overlay
+    bgWidth, bgHeight = bg.size
     xyOffsetTextSize = int(20)
+    
+    # Test if text fits with size 20
+    arialFontTest = ImageFont.truetype(
+        os.path.join(fontsFolder, fontName), xyOffsetTextSize)
+    textTL = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
+    # Get test text size using a temporary draw object
+    test_draw = ImageDraw.Draw(bg)
+    text_width, text_height = test_draw.textsize(textTL, font=arialFontTest)
+    
+    # If text is too wide for the overlay width, scale down
+    # Use 84% of width to ensure text fits comfortably without getting cut off
+    if text_width > width * 0.84:  # Text shouldn't take more than 84% of overlay width
+        xyOffsetTextSize = int(width * 0.84 * 20 / text_width)
 
     arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
-    # draws x, y offset text
+    # draws x, y offset text with enhanced antialiasing using supersampling
     textTL = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
     offsetTextxy = ((xOffset + 3), yOffset)
-    draw.text(offsetTextxy, textTL, fill='white', font=arialFont)
+    
+    # Supersampling for ultra-smooth text: render at 4x scale then downsample
+    scale_factor = 4
+    # Calculate text size at normal scale
+    text_w, text_h = draw.textsize(textTL, font=arialFont)
+    
+    # Create a larger temporary image for high-res text rendering
+    temp_img = Image.new('RGBA', (text_w * scale_factor, text_h * scale_factor), (0, 0, 0, 0))
+    temp_draw = ImageDraw.Draw(temp_img)
+    temp_font = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize * scale_factor)
+    
+    # Draw text on temp image with stroke
+    temp_draw.text((0, 0), textTL, fill='white', font=temp_font,
+                   stroke_width=scale_factor, stroke_fill='black')
+    
+    # Downsample for smooth antialiasing
+    temp_img = temp_img.resize((text_w, text_h), Image.LANCZOS)
+    
+    # Paste the supersampled text onto the background
+    bg.paste(temp_img, offsetTextxy, temp_img)
 
     return bg, xyOffsetTextSize
 
@@ -195,10 +231,25 @@ if __name__ == "__main__":
         arialFont = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize)
 
         draw = ImageDraw.Draw(bg)
-        draw.fontmode = 'L'
+        # Supersampling for ultra-smooth text
         bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
         bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
-        draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
+        
+        # Render text at 4x scale for enhanced antialiasing
+        scale_factor = 4
+        temp_img = Image.new('RGBA', (bgTextW * scale_factor, bgTextH * scale_factor), (0, 0, 0, 0))
+        temp_draw = ImageDraw.Draw(temp_img)
+        temp_font = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize * scale_factor)
+        
+        # Draw text with stroke at high resolution
+        temp_draw.text((0, 0), textBR, fill='white', font=temp_font,
+                       stroke_width=scale_factor, stroke_fill='black')
+        
+        # Downsample for smooth antialiasing
+        temp_img = temp_img.resize((bgTextW, bgTextH), Image.LANCZOS)
+        
+        # Paste the supersampled text
+        bg.paste(temp_img, bgSizeTextxy, temp_img)
 
         # saves image file
         imageDir = './images'
