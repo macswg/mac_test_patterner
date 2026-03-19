@@ -1,0 +1,14 @@
+services:
+  json:
+    build: .
+    command: python TestPatternMakerJSON.py
+    volumes:
+      - ./images:/app/images
+      - ./JSON_test_pattern_configs:/app/JSON_test_pattern_configs
+
+  gsheet:
+    build: .
+    command: python TestPatternFromGoogleSheet.py
+    volumes:
+      - ./images:/app/images
+      - ./secret:/app/secret:ro
