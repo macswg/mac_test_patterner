@@ -181,8 +181,8 @@ def make_raster(rasterDict: dict):
     #     return x
 
     def getSizeOfText(text, font):
-        w, h = draw.textsize(text, font)
-        return w, h
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
     # # This function converts list to string for use in draw.text lines
     # def wLLsz(i):
@@ -210,6 +210,9 @@ def make_raster(rasterDict: dict):
         fontName = 'Arial.ttf'
     elif sys.platform.startswith('win'):
         fontName = 'arial.ttf'
+    elif sys.platform.startswith('linux'):
+        fontName = 'DejaVuSans.ttf'
+        fontsFolder = '/usr/share/fonts/truetype/dejavu'
 
     # whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
     # altBorderColor = ImageColor.getcolor('gray', 'RGBA')
@@ -634,7 +637,7 @@ def make_raster(rasterDict: dict):
     # This function converts list to string for use in draw.text lines
 
     def iNc(i):
-        i = ', '.join(str(e) for e in indexNums)
+        i = ','.join(str(e) for e in indexNums)
         return i
 
     # calculate appropriate font size for panel resolution
@@ -648,7 +651,8 @@ def make_raster(rasterDict: dict):
     """
 
     # original line that calculates the width and height of text to be drawn
-    w, h = draw.textsize(iNc(indexNums), font=arialFont)
+    _bbox = draw.textbbox((0, 0), iNc(indexNums), font=arialFont)
+    w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
 
     # centering text math constants
     CENT_X_CORD_FOR_TEXT, CENT_Y_CORD_FOR_TEXT = (W - w) / 2, (H - h) / 2
@@ -685,10 +689,11 @@ def make_raster(rasterDict: dict):
 
                 # Create special index for half tile at row 1 (display starts at 1)
                 half_tile_indexNums = [indexNums[0], 1]
-                half_tile_text = ', '.join(
+                half_tile_text = ','.join(
                     str(e) for e in half_tile_indexNums)
                 # calculates the width and height of text
-                w_half, h_half = draw.textsize(half_tile_text, font=arialFont)
+                _bbox = draw.textbbox((0, 0), half_tile_text, font=arialFont)
+                w_half, h_half = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
                 # draws text on the half panel at top
                 draw.text(
                     (adjusted_x_coord_for_text_halfpanel,
@@ -699,27 +704,35 @@ def make_raster(rasterDict: dict):
 
             # logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
 
-            adjusted_x_coord_for_text = (
-                (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
-            adjusted_y_coord_for_text = (
-                (H - h) / 2) + (indexNums[1] - i_offset_1) * tileResHeight
-
             # Determine display row number (may differ from indexNums[1])
             display_row_num = indexNums[1]
 
-            # Adjust Y position and row numbering based on half tile location
+            # Determine Y offset and row numbering based on half tile location
+            y_offset_adjust = 0
             if half_tile_bool is True:
                 if half_tile_position == 0:
                     # Half tile on top - shift all text down
-                    adjusted_y_coord_for_text += tileResHeight / 2
+                    y_offset_adjust = tileResHeight / 2
                     # Row numbers increment (half tile is row 1, so full tiles are 2, 3, 4...)
                     display_row_num = indexNums[1] + 1
                 elif (half_tile_position < 99 and
                       indexNums[1] > half_tile_position):
                     # Half tile in middle - shift text below it down
-                    adjusted_y_coord_for_text += tileResHeight / 2
+                    y_offset_adjust = tileResHeight / 2
                     # Row numbers increment after the half tile
                     display_row_num = indexNums[1] + 1
+
+            # Create display text and measure it before computing position
+            # so that position always uses the actual width of the current text
+            display_indexNums = [indexNums[0], display_row_num]
+            display_text = ','.join(str(e) for e in display_indexNums)
+            _bbox = draw.textbbox((0, 0), display_text, font=arialFont)
+            w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
+
+            adjusted_x_coord_for_text = (
+                (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
+            adjusted_y_coord_for_text = (
+                (H - h) / 2) + (indexNums[1] - i_offset_1) * tileResHeight + y_offset_adjust
 
             # adds more text to half panels if they exist
             if half_tile_bool is True:
@@ -727,13 +740,6 @@ def make_raster(rasterDict: dict):
                     (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
                 adjusted_y_coord_for_text_halfpanel = (
                     half_tile_y_position + ((half_H - h) / 2))
-
-            # Create display text with adjusted row number
-            display_indexNums = [indexNums[0], display_row_num]
-            display_text = ', '.join(str(e) for e in display_indexNums)
-
-            # calculates the width and height of text to be drawn
-            w, h = draw.textsize(display_text, font=arialFont)
 
             # draws text
             draw.text(
@@ -771,10 +777,11 @@ def make_raster(rasterDict: dict):
                         half_tile_display_row is not None):
                     # Create special index for half tile
                     half_tile_indexNums = [indexNums[0], half_tile_display_row]
-                    half_tile_text = ', '.join(
+                    half_tile_text = ','.join(
                         str(e) for e in half_tile_indexNums)
                     # calculates the width and height of text
-                    w, h = draw.textsize(half_tile_text, font=arialFont)
+                    _bbox = draw.textbbox((0, 0), half_tile_text, font=arialFont)
+                    w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
                     # draws text on the half panel
                     draw.text(
                         (adjusted_x_coord_for_text_halfpanel,
@@ -805,7 +812,8 @@ def make_raster(rasterDict: dict):
                 adjusted_y_coord_for_text += tileResHeight
 
                 # calculates the width and height of text to be drawn
-                w, h = draw.textsize(iNc(indexNums), font=arialFont)
+                _bbox = draw.textbbox((0, 0), iNc(indexNums), font=arialFont)
+                w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
                 # logging.debug('draw.textsize w value = ' + str(w) + '-- h value = ' + str(h))
 
         break

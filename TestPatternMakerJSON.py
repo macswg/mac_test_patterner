@@ -25,8 +25,8 @@ wLLsz = raster_maker_json.wLLsz
 
 
 def getSizeOfText(text, font):
-    w, h = draw.textsize(text, font)
-    return w, h
+    bbox = draw.textbbox((0, 0), text, font=font)
+    return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
 
 # This defines a variables that will be updated later
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             draw = ImageDraw.Draw(bg)
             draw.fontmode = 'L'
             bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
-            bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
+            bgSizeTextxy = ((bgW - (bgTextW + bgTextH // 4)), (bgH - (bgTextH + bgTextH // 4)))
             draw.text(bgSizeTextxy, textBR, fill='white', font=arialFont)
 
             # saves image file

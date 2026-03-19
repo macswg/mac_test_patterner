@@ -30,14 +30,17 @@ if sys.platform.startswith('darwin'):
     fontName = 'Arial.ttf'
 elif sys.platform.startswith('win'):
     fontName = 'arial.ttf'
+elif sys.platform.startswith('linux'):
+    fontName = 'DejaVuSans.ttf'
+    fontsFolder = '/usr/share/fonts/truetype/dejavu'
 
 whiteBorderColor = ImageColor.getcolor('white', 'RGBA')
 altBorderColor = ImageColor.getcolor('gray', 'RGBA')
 
 
 def getSizeOfText(text, font):
-    w, h = draw.textsize(text, font)
-    return w, h
+    bbox = draw.textbbox((0, 0), text, font=font)
+    return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
 
 # Function to validate the background color
@@ -128,7 +131,8 @@ def addRaster(rasterDict: Dict):
     textTL = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
     # Get test text size using a temporary draw object
     test_draw = ImageDraw.Draw(bg)
-    text_width, text_height = test_draw.textsize(textTL, font=arialFontTest)
+    _bbox = test_draw.textbbox((0, 0), textTL, font=arialFontTest)
+    text_width, text_height = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
     
     # If text is too wide for the overlay width, scale down
     # Use 84% of width to ensure text fits comfortably without getting cut off
@@ -139,20 +143,22 @@ def addRaster(rasterDict: Dict):
 
     # draws x, y offset text with enhanced antialiasing using supersampling
     textTL = '(' + str(xOffset) + ', ' + str(yOffset) + ')'
-    offsetTextxy = ((xOffset + 3), yOffset)
+    offsetTextxy = ((xOffset + 3), yOffset + 4)
     
     # Supersampling for ultra-smooth text: render at 4x scale then downsample
     scale_factor = 4
     # Calculate text size at normal scale
-    text_w, text_h = draw.textsize(textTL, font=arialFont)
+    _bbox = draw.textbbox((0, 0), textTL, font=arialFont)
+    text_w, text_h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
     
     # Create a larger temporary image for high-res text rendering
     temp_img = Image.new('RGBA', (text_w * scale_factor, text_h * scale_factor), (0, 0, 0, 0))
     temp_draw = ImageDraw.Draw(temp_img)
     temp_font = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize * scale_factor)
     
-    # Draw text on temp image with stroke
-    temp_draw.text((0, 0), textTL, fill='white', font=temp_font,
+    # Draw text offset by scaled bbox origin so text fills the image correctly
+    _temp_bbox = temp_draw.textbbox((0, 0), textTL, font=temp_font)
+    temp_draw.text((-_temp_bbox[0], -_temp_bbox[1]), textTL, fill='white', font=temp_font,
                    stroke_width=scale_factor, stroke_fill='black')
     
     # Downsample for smooth antialiasing
@@ -187,7 +193,7 @@ if __name__ == "__main__":
             service_file=(
                 'secret/credentials_python-int-2023-2e89fbfc8ab6.json'))
     
-    g_sht_name = 'Sean - Pixel Maps iHeart Fiesta 2025'
+    g_sht_name = 'sean - Pixel Maps Coachella 2026'
     wks_rstr = g_sht_open(
         client=client, gSheet=g_sht_name, wrksheet='rasters')
 
@@ -233,7 +239,7 @@ if __name__ == "__main__":
         draw = ImageDraw.Draw(bg)
         # Supersampling for ultra-smooth text
         bgTextW, bgTextH = getSizeOfText(textBR, arialFont)
-        bgSizeTextxy = ((bgW - (bgTextW + int(bgTextW * 0.015))), (bgH - (bgTextH + int(bgTextW * 0.015))))
+        bgSizeTextxy = ((bgW - (bgTextW + bgTextH // 4)), (bgH - (bgTextH + bgTextH // 4)))
         
         # Render text at 4x scale for enhanced antialiasing
         scale_factor = 4
@@ -241,8 +247,9 @@ if __name__ == "__main__":
         temp_draw = ImageDraw.Draw(temp_img)
         temp_font = ImageFont.truetype(os.path.join(fontsFolder, fontName), xyOffsetTextSize * scale_factor)
         
-        # Draw text with stroke at high resolution
-        temp_draw.text((0, 0), textBR, fill='white', font=temp_font,
+        # Draw text offset by scaled bbox origin so text fills the image correctly
+        _temp_bbox = temp_draw.textbbox((0, 0), textBR, font=temp_font)
+        temp_draw.text((-_temp_bbox[0], -_temp_bbox[1]), textBR, fill='white', font=temp_font,
                        stroke_width=scale_factor, stroke_fill='black')
         
         # Downsample for smooth antialiasing

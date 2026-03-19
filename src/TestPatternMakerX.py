@@ -26,8 +26,8 @@ wLLsz = raster_maker.wLLsz
 
 
 def getSizeOfText(text, font):
-    w, h = draw.textsize(text, font)
-    return w, h
+    bbox = draw.textbbox((0, 0), text, font=font)
+    return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
 
 # This defines a variables that will be updated later

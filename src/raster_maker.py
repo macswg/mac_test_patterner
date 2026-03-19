@@ -153,8 +153,8 @@ def main():
     #     return x
 
     def getSizeOfText(text, font):
-        w, h = draw.textsize(text, font)
-        return w, h
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
     # # This function converts list to string for use in draw.text lines
     # def wLLsz(i):
@@ -543,7 +543,7 @@ def main():
     # This function converts list to string for use in draw.text lines
 
     def iNc(i):
-        i = ', '.join(str(e) for e in indexNums)
+        i = ','.join(str(e) for e in indexNums)
         return i
 
     """ calculates the width and height of text to be drawn
@@ -553,7 +553,8 @@ def main():
     """
 
     # original line that calculates the width and height of text to be drawn
-    w, h = draw.textsize(iNc(indexNums), font=arialFont)
+    _bbox = draw.textbbox((0, 0), iNc(indexNums), font=arialFont)
+    w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
 
     # centering text math constants
     CENT_X_CORD_FOR_TEXT, CENT_Y_CORD_FOR_TEXT = (W - w) / 2, (H - h) / 2
@@ -581,6 +582,10 @@ def main():
 
             logging.debug('While 1 statement start. ' + str(loop_counter1) + str(' ') + str(indexNums))
 
+            # measure text before computing position so width is always accurate
+            _bbox = draw.textbbox((0, 0), iNc(indexNums), font=arialFont)
+            w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
+
             adjusted_x_coord_for_text = (
                 (W - w) / 2) + (indexNums[0] - i_offset_0) * tileResWidth
             adjusted_y_coord_for_text = (
@@ -598,9 +603,6 @@ def main():
                 adjusted_y_coord_for_text_halfpanel = (
                     (half_H - h) / 2) + (indexNums[1]) * (tileResHeight)
 
-            # calculates the width and height of text to be drawn
-            w, h = draw.textsize(iNc(indexNums), font=arialFont)
-
             # draws text
             draw.text(
                 (adjusted_x_coord_for_text, adjusted_y_coord_for_text),
@@ -614,7 +616,8 @@ def main():
             logging.debug('indexNums update 370 ' + str(indexNums))
 
             # calculates the width and height of text to be drawn
-            w, h = draw.textsize(iNc(indexNums), font=arialFont)
+            _bbox = draw.textbbox((0, 0), iNc(indexNums), font=arialFont)
+            w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
 
             # This if statements draws the half-tile numbers
             if half_tile_bool is True:
@@ -653,7 +656,8 @@ def main():
                 adjusted_y_coord_for_text += tileResHeight
 
                 # calculates the width and height of text to be drawn
-                w, h = draw.textsize(iNc(indexNums), font=arialFont)
+                _bbox = draw.textbbox((0, 0), iNc(indexNums), font=arialFont)
+                w, h = _bbox[2] - _bbox[0], _bbox[3] - _bbox[1]
                 logging.debug('draw.textsize w value = ' + str(w) + '-- h value = ' + str(h))
 
         break
