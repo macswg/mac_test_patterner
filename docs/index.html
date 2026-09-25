@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grey Steps Pattern</title>
+<meta name="description" content="Generate a full vs limited range grey steps test pattern PNG at any resolution, entirely in your browser.">
+<style>
+  :root {
+    --bg: #f4f4f5;
+    --panel: #ffffff;
+    --text: #18181b;
+    --muted: #71717a;
+    --border: #d4d4d8;
+    --accent: #2563eb;
+    --accent-text: #ffffff;
+    --error: #b91c1c;
+    --stage: #e4e4e7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f11;
+      --panel: #18181b;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --border: #3f3f46;
+      --accent: #3b82f6;
+      --accent-text: #ffffff;
+      --error: #f87171;
+      --stage: #09090b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 800px) { main { grid-template-columns: minmax(0, 1fr); } }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    align-self: start;
+  }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; margin-bottom: 16px; }
+  .row .x { padding-bottom: 9px; color: var(--muted); }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .field { margin-bottom: 16px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .presets button {
+    font: inherit; font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .presets button:hover { border-color: var(--accent); }
+  .download {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .download:disabled { opacity: .45; cursor: default; }
+  .status { font-size: 13px; color: var(--muted); margin-top: 12px; min-height: 1.4em; }
+  .status.error { color: var(--error); }
+  .stage {
+    background: var(--stage);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+  }
+  .stage canvas {
+    max-width: 100%;
+    max-height: 78vh;
+    display: block;
+    box-shadow: 0 1px 8px rgba(0,0,0,.35);
+  }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>Grey Steps Pattern</h1>
+    <p class="sub">Full vs limited range test pattern · rendered in your browser</p>
+    <div class="panel">
+      <div class="row">
+        <div>
+          <label for="w">Width</label>
+          <input id="w" type="number" min="1" max="16384" value="1920" inputmode="numeric">
+        </div>
+        <span class="x">×</span>
+        <div>
+          <label for="h">Height</label>
+          <input id="h" type="number" min="1" max="16384" value="1080" inputmode="numeric">
+        </div>
+      </div>
+      <div class="presets" id="presets">
+        <button data-size="1280x720">720p</button>
+        <button data-size="1920x1080">1080p</button>
+        <button data-size="2560x1440">1440p</button>
+        <button data-size="3840x2160">UHD</button>
+        <button data-size="4096x2160">DCI 4K</button>
+        <button data-size="7680x4320">8K</button>
+      </div>
+      <div class="field">
+        <label for="steps">Grey steps</label>
+        <select id="steps">
+          <option value="0">Auto (by width)</option>
+          <option>8</option><option>12</option><option>16</option><option>20</option>
+          <option>24</option><option>28</option><option>32</option>
+        </select>
+      </div>
+      <button id="download" class="download" disabled>Download PNG</button>
+      <div id="status" class="status" role="status"></div>
+      <p class="hint">If a display clips to limited range, the 0–16 bars merge into one black block and the 235–255 bars merge into one white block.</p>
+    </div>
+  </section>
+  <section class="stage">
+    <canvas id="canvas" aria-label="Grey steps pattern preview"></canvas>
+  </section>
+</main>
+<script>
+  // Port of src/greyStepsPatternMaker_v3.py — keep the two in sync.
+  const LIMITED_LOW_VALUE = 16;
+  const LIMITED_HIGH_VALUE = 235;
+  const FULL_LOW_VALUE = 0;
+  const FULL_HIGH_VALUE = 255;
+  const FULL_BAND_HEIGHT = 0.058;
+  const LIMITED_BAND_HEIGHT = 0.095;
+  const LIMITED_BAND_ALPHA = 220;
+  const MAX_DIMENSION = 16384;
+
+  // Python's round(): halves go to the nearest even number
+  function pyRound(x) {
+    const r = Math.round(x);
+    return Math.abs(x % 1) === 0.5 && r % 2 !== 0 ? r - 1 : r;
+  }
+
+  function defaultSteps(width) {
+    if (width <= 1920) return 12;
+    if (width <= 3840) return 16;
+    return 24;
+  }
+
+  function linearSteps(start, end, count) {
+    return Array.from({ length: count + 1 }, (_, i) => pyRound(start + (end - start) * i / count));
+  }
+
+  function greyValues(steps) {
+    if (steps < 8 || steps % 4) throw new Error('steps must be a multiple of 4 and at least 8');
+    const outer = steps / 4 - 1;
+    const middle = steps / 2;
+    return [
+      ...linearSteps(FULL_LOW_VALUE, LIMITED_LOW_VALUE, outer),
+      ...linearSteps(LIMITED_LOW_VALUE, LIMITED_HIGH_VALUE, middle).slice(1, -1),
+      ...linearSteps(LIMITED_HIGH_VALUE, FULL_HIGH_VALUE, outer),
+    ];
+  }
+
+  function barEdges(width, count) {
+    return Array.from({ length: count + 1 }, (_, i) => pyRound(i * width / count));
+  }
+
+  function drawGreySteps(canvas, width, height, steps) {
+    const values = greyValues(steps);
+    const edges = barEdges(width, values.length);
+    const lowIndex = steps / 4 - 1;
+    const highIndex = lowIndex + steps / 2;
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('This browser could not create a canvas that large');
+
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+
+    // grey bars
+    values.forEach((v, i) => {
+      ctx.fillStyle = `rgb(${v},${v},${v})`;
+      ctx.fillRect(edges[i], 0, edges[i + 1] - edges[i], height);
+    });
+
+    // title bands: solid black across the top, translucent black over the limited bars
+    const fullBandH = Math.max(1, Math.floor(height * FULL_BAND_HEIGHT));
+    const limBandH = Math.max(1, Math.floor(height * LIMITED_BAND_HEIGHT));
+    const limX0 = edges[lowIndex], limX1 = edges[highIndex + 1];
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, fullBandH);
+    ctx.fillStyle = `rgba(0,0,0,${LIMITED_BAND_ALPHA / 255})`;
+    ctx.fillRect(limX0, fullBandH, limX1 - limX0, limBandH);
+
+    // font sized to the image, but never wider than a bar can hold
+    let minBarW = Infinity;
+    for (let i = 0; i < values.length; i++) minBarW = Math.min(minBarW, edges[i + 1] - edges[i]);
+    const fontSize = Math.max(8, Math.min(Math.floor(Math.min(width, height) / 26), Math.floor(minBarW / 2.2)));
+    ctx.font = `${fontSize}px Arial, Helvetica, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillStyle = 'white';
+    ctx.fillText('Full Range', width / 2, fullBandH / 2);
+    ctx.fillStyle = 'grey';
+    ctx.fillText('Limited', (limX0 + limX1) / 2, fullBandH + limBandH * 0.7);
+
+    // value label in each bar; dark text on the bright super-white bars
+    const labelY = fullBandH + limBandH * 0.25;
+    values.forEach((v, i) => {
+      ctx.fillStyle = i > highIndex ? 'black' : 'grey';
+      ctx.fillText(String(v), (edges[i] + edges[i + 1]) / 2, labelY);
+    });
+    return steps;
+  }
+
+  // ---- UI ----
+  const $ = id => document.getElementById(id);
+  const wIn = $('w'), hIn = $('h'), stepsIn = $('steps');
+  const canvas = $('canvas'), status = $('status'), download = $('download');
+  let timer;
+
+  function setStatus(text, isError) {
+    status.textContent = text;
+    status.classList.toggle('error', !!isError);
+  }
+
+  function readSize() {
+    const w = Number(wIn.value), h = Number(hIn.value);
+    if (!Number.isInteger(w) || !Number.isInteger(h) || w < 1 || h < 1 || w > MAX_DIMENSION || h > MAX_DIMENSION) {
+      throw new Error(`Width and height must be whole numbers between 1 and ${MAX_DIMENSION}`);
+    }
+    return [w, h];
+  }
+
+  function refresh() {
+    try {
+      const [w, h] = readSize();
+      const steps = Number(stepsIn.value) || defaultSteps(w);
+      drawGreySteps(canvas, w, h, steps);
+      setStatus(`${w} × ${h} · ${steps} steps (${steps - 1} bars)`);
+      download.disabled = false;
+    } catch (e) {
+      setStatus(e.message, true);
+      download.disabled = true;
+    }
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(refresh, 250);
+  }
+
+  [wIn, hIn].forEach(el => el.addEventListener('input', schedule));
+  stepsIn.addEventListener('change', refresh);
+  $('presets').addEventListener('click', e => {
+    const size = e.target.dataset.size;
+    if (!size) return;
+    [wIn.value, hIn.value] = size.split('x');
+    refresh();
+  });
+
+  download.addEventListener('click', () => {
+    const name = `greyTestPattern_${canvas.width}x${canvas.height}.png`;
+    download.disabled = true;
+    canvas.toBlob(blob => {
+      download.disabled = false;
+      if (!blob) {
+        setStatus('This browser could not export an image that large — try a smaller size', true);
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }, 'image/png');
+  });
+
+  refresh();
+</script>
+</body>
+</html>
