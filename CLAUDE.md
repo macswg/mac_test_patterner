@@ -17,6 +17,11 @@ python TestPatternFromGoogleSheet.py
 
 # Interactive CLI (prompts for all values at runtime)
 python src/TestPatternMakerX.py
+
+# Full vs limited range grey steps pattern (prompts if width/height omitted)
+python src/greyStepsPatternMaker_v3.py 1920 1080 [--steps 16]
+
+# Grey steps web GUI: static page, no server — open docs/index.html in a browser
 ```
 
 **Docker:**
@@ -87,6 +92,10 @@ Fonts are resolved at runtime based on `sys.platform`:
 - Linux → `Ubuntu-B.ttf` (only in `src/raster_maker.py`)
 
 `fontsFolder` is set to the string `'FONT_FOLDER'` as a placeholder — on macOS this resolves correctly because PIL searches system font paths. On other platforms the font folder path may need updating.
+
+### Grey steps web GUI
+
+`docs/index.html` is a self-contained JavaScript port of `src/greyStepsPatternMaker_v3.py` (canvas rendering, no server) intended for GitHub Pages. The bar values and bar edges must stay identical to the Python version — the JS uses a `pyRound` helper to mimic Python's round-half-to-even. Update both when changing the pattern.
 
 ## Known issues / TODOs in the code
 
